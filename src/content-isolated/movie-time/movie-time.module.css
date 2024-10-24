@@ -1,0 +1,58 @@
+.container {
+  all: initial;
+
+  cursor: inherit;
+
+  display: flex;
+
+  /* !important is for course pages summary */
+  flex: 1 !important;
+  justify-content: end;
+
+  font: inherit;
+  font-size: 14px;
+  line-height: initial;
+  color: #828282;
+  white-space: nowrap;
+}
+
+.groups {
+  pointer-events: none;
+
+  position: absolute;
+  z-index: 2147483647;
+  translate: 0 0.3em;
+
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.4em;
+  align-items: baseline;
+
+  width: 0;
+  padding: 0.6em 0.8em;
+
+  font-size: 0.9em;
+  color: #222;
+
+  opacity: 0;
+  background-color: #fff;
+  box-shadow: #0000001a 0 0.2rem 0.2rem 0.1rem;
+
+  .wrapper:hover & {
+    width: auto;
+    opacity: 1;
+    transition: opacity 0.2s;
+  }
+}
+
+.placeholder {
+  width: 90px;
+  height: 16px;
+  background-color: #f8f8f8;
+  border-radius: 8px;
+}
+
+.faint {
+  color: #b3b3b3;
+}
