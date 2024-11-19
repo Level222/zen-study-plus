@@ -10,10 +10,14 @@
   justify-content: end;
 
   font: inherit;
-  font-size: 14px;
+  font-size: 13px;
   line-height: initial;
   color: #828282;
   white-space: nowrap;
+}
+
+.wrapper {
+  height: 1.2em;
 }
 
 .groups {
@@ -47,10 +51,10 @@
 }
 
 .placeholder {
-  width: 90px;
-  height: 16px;
+  width: 7em;
+  height: 1.2em;
   background-color: #f8f8f8;
-  border-radius: 8px;
+  border-radius: 0.6em;
 }
 
 .faint {
