@@ -11,6 +11,13 @@ export default {
   build: {
     outDir: path.resolve(import.meta.dirname, 'dist'),
     emptyOutDir: true,
+    rollupOptions: {
+      onwarn: (warning, warn) => {
+        if (warning.code !== 'MODULE_LEVEL_DIRECTIVE') {
+          warn(warning);
+        }
+      },
+    },
   },
   css: {
     modules: {

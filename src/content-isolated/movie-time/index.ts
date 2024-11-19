@@ -1,83 +1,83 @@
 import type { ContentFeature } from '../pages';
+import { combineLatest, timer } from 'rxjs';
 import { cleanable } from '../../utils/cleanup';
-import { isSameChapterPageInfo, matchChapterPage } from '../../utils/page-info';
-import { appendMovieTimeComponentToAnchors, appendMovieTimeComponentToParent } from './append-movie-time-component';
-import { fetchChapterTimeProgress } from './time-progress';
+import { isSameChapterPageInfo, isSameCoursePageInfo, isSameMonthlyReportsPageInfo, matchChapterPage, matchCoursePage, matchMonthlyReportsPage } from '../../utils/page-info';
+import { appendMovieTimeComponentToAnchorsIfEnabled } from './append-movie-time-component';
+import { setUpMovieTimeComponentForChapterPage } from './set-up-for-chapter-page';
+import { fetchChapterTimeProgress, fetchCourseTimeProgress, fetchMonthlyReportsTimeProgress } from './time-progress';
 
-const movieTime: ContentFeature = ({ pageContent$ }) => {
-  pageContent$.pipe(
+const movieTime: ContentFeature = ({ pageContent$, syncOptions$ }) => {
+  const pageContentAndSyncOptions$ = combineLatest({
+    pageContent: pageContent$,
+    syncOptions: syncOptions$,
+  });
+
+  pageContentAndSyncOptions$.pipe(
     cleanable(),
-  ).subscribe(({ value: { types }, previousCleanup, cleanup }) => {
+  ).subscribe(({ value: { pageContent, syncOptions }, previousCleanup, cleanup }) => {
     previousCleanup.execute();
 
-    for (const { name, props } of types) {
+    const movieTimeOptions = syncOptions.user.movieTime;
+
+    const until$ = timer(movieTimeOptions.timeout);
+
+    for (const { name, pageInfo } of pageContent.types) {
       switch (name) {
         case 'COURSE':
           cleanup.add(
-            appendMovieTimeComponentToAnchors({
-              anchorSelectors: '[aria-label="チャプター一覧"] a:has(h4)',
-              parentRelativeSelectors: ':scope > *',
+            appendMovieTimeComponentToAnchorsIfEnabled({
+              options: movieTimeOptions.pages.course,
               match: matchChapterPage,
               fetchTimeProgress: fetchChapterTimeProgress,
               isSamePageInfo: isSameChapterPageInfo,
-              summaryParentSelectors: '[type=flow] > [direction=column] > [direction=row]',
+              until$,
             }),
-          );
-
-          break;
-
-        case 'CHAPTER':
-          cleanup.add(
-            appendMovieTimeComponentToParent(
-              ':has(> [aria-label$="教材リスト"]) > :nth-child(1)',
-              fetchChapterTimeProgress(props),
-            ),
           );
 
           break;
 
         case 'MONTHLY_REPORTS':
           cleanup.add(
-            appendMovieTimeComponentToAnchors({
-              anchorSelectors: 'a:has([aria-label^="進捗度"])',
-              parentRelativeSelectors: ':scope > :nth-child(1) > :nth-child(2)',
+            appendMovieTimeComponentToAnchorsIfEnabled({
+              options: movieTimeOptions.pages.monthlyReports,
               match: matchChapterPage,
               fetchTimeProgress: fetchChapterTimeProgress,
               isSamePageInfo: isSameChapterPageInfo,
-              summaryParentSelectors: '[type=flow] > [direction=column] > [direction=row]',
+              until$,
             }),
           );
 
           break;
 
-        // Not recommended due to large number of HTTP requests
-        // case 'MY_COURSES':
-        //   if (typeof props.tab === 'string') {
-        //     cleanup.add(
-        //       appendMovieTimeComponentToAnchors({
-        //         anchorSelectors: '[aria-label="コース一覧"] a:has(h4)',
-        //         parentRelativeSelectors: 'h4',
-        //         match: matchCoursePage,
-        //         fetchTimeProgress: fetchCourseTimeProgress,
-        //         isSamePageInfo: isSameCoursePageInfo,
-        //       }),
-        //     );
-        //   } else {
-        //     cleanup.add(
-        //       appendMovieTimeComponentToAnchors({
-        //         anchorSelectors: 'a[aria-label$="のレポート"]',
-        //         parentRelativeSelectors: ':scope > :nth-child(1) > :nth-child(1)',
-        //         match: matchMonthlyReportsPage,
-        //         fetchTimeProgress: fetchMonthlyReportsTimeProgress,
-        //         isSamePageInfo: isSameMonthlyReportsPageInfo,
-        //       }),
-        //     );
-        //   }
+        case 'MY_COURSES':
+          if (typeof pageInfo.tab === 'string') {
+            cleanup.add(
+              appendMovieTimeComponentToAnchorsIfEnabled({
+                options: movieTimeOptions.pages.myCourse,
+                match: matchCoursePage,
+                fetchTimeProgress: fetchCourseTimeProgress,
+                isSamePageInfo: isSameCoursePageInfo,
+                until$,
+              }),
+            );
+          } else {
+            cleanup.add(
+              appendMovieTimeComponentToAnchorsIfEnabled({
+                options: movieTimeOptions.pages.myCourseReport,
+                match: matchMonthlyReportsPage,
+                fetchTimeProgress: fetchMonthlyReportsTimeProgress,
+                isSamePageInfo: isSameMonthlyReportsPageInfo,
+                until$,
+              }),
+            );
+          }
 
-        //   break;
+          break;
       }
     }
   });
+
+  setUpMovieTimeComponentForChapterPage(pageContentAndSyncOptions$);
 };
 
 export default movieTime;

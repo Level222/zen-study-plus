@@ -1,6 +1,7 @@
 import type { Observable } from 'rxjs';
 import type { Cleanup } from '../utils/cleanup';
 import type { PageMatcher } from '../utils/page-info';
+import type { SyncOptions } from '../utils/sync-options';
 import { matchChapterPage, matchCoursePage, matchMonthlyReportsPage, matchMyCoursesPage } from '../utils/page-info';
 
 export type PageTypeDeclaration = {
@@ -29,7 +30,7 @@ export const knownPageTypes = [
 
 export type ToPageType<T extends PageTypeDeclaration> = {
   name: T['name'];
-  props: T['match'] extends PageMatcher<infer U> ? U : never;
+  pageInfo: T['match'] extends PageMatcher<infer U> ? U : never;
 };
 
 export type MapToPageType<T extends PageTypeDeclaration[]> = {
@@ -50,6 +51,7 @@ export type ContentFeatureInit = {
    * subscribeした時とページが遷移した時に発火
    */
   pageContent$: Observable<PageContent>;
+  syncOptions$: Observable<SyncOptions>;
 };
 
 export type ContentFeature = (init: ContentFeatureInit) => void;

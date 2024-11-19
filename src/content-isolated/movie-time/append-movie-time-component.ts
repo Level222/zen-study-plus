@@ -1,15 +1,14 @@
-import type { MonoTypeOperatorFunction, Observable } from 'rxjs';
+import type { Observable } from 'rxjs';
 import type { PageMatcher } from '../../utils/page-info';
+import type { MovieTimeListPageOptionsWithSummary } from '../../utils/sync-options';
 import type { TimeProgress } from './time-progress';
-import { concatMap, connectable, forkJoin, map, ReplaySubject, scan, shareReplay, takeUntil, timer } from 'rxjs';
+import { concatMap, connectable, forkJoin, map, ReplaySubject, scan, shareReplay, takeUntil } from 'rxjs';
 import { Cleanup, modifyProperties } from '../../utils/cleanup';
 import { el } from '../../utils/helpers';
 import { intervalQuerySelector, intervalQuerySelectorAll } from '../../utils/interval-query-selector';
 import createMovieTimeComponent from './create-motie-time-component';
 import styles from './movie-time.module.css';
 import { flatTimeProgress } from './time-progress';
-
-const commonTakeUntil = <T>(): MonoTypeOperatorFunction<T> => takeUntil(timer(5000));
 
 const appendMovieTimeComponentIfMissing = (
   parent: HTMLElement,
@@ -57,7 +56,7 @@ const appendMovieTimeComponentIfMissing = (
 };
 
 export const appendMovieTimeComponentToParent = (
-  parentSelectors: string,
+  parent$: Observable<Element | null>,
   timeProgress$: Observable<TimeProgress>,
 ): Cleanup => {
   const cleanup = Cleanup.empty();
@@ -70,9 +69,7 @@ export const appendMovieTimeComponentToParent = (
   const timeProgressSubscription = sharedTimeProgress$.connect();
   cleanup.add(Cleanup.fromSubscription(timeProgressSubscription));
 
-  const subscription = intervalQuerySelector(parentSelectors).pipe(
-    commonTakeUntil(),
-  ).subscribe((parent) => {
+  const subscription = parent$.subscribe((parent) => {
     if (parent instanceof HTMLElement) {
       cleanup.add(
         appendMovieTimeComponentIfMissing(parent, sharedTimeProgress$),
@@ -85,14 +82,19 @@ export const appendMovieTimeComponentToParent = (
   return cleanup;
 };
 
-type AppendToAnchorsOptions<T extends object> = {
-  anchorSelectors: string;
-  parentRelativeSelectors: string;
-  match: PageMatcher<T>;
-  fetchTimeProgress: (pageInfo: T) => Observable<TimeProgress>;
-  isSamePageInfo: (a: T, b: T) => boolean;
-  summaryParentSelectors?: string;
-};
+type MovieTimeListPageOptionsWithOptionalSummary =
+  & Omit<MovieTimeListPageOptionsWithSummary, 'summaryParentSelectors'>
+  & Partial<Pick<MovieTimeListPageOptionsWithSummary, 'summaryParentSelectors'>>;
+
+export type AppendToAnchorsOptions<T extends object> =
+  & Pick<MovieTimeListPageOptionsWithOptionalSummary, 'parentRelativeSelectors'>
+  & {
+    anchors$: Observable<Iterable<HTMLAnchorElement>>;
+    summaryParent$?: Observable<Element | null>;
+    match: PageMatcher<T>;
+    fetchTimeProgress: (pageInfo: T) => Observable<TimeProgress>;
+    isSamePageInfo: (a: T, b: T) => boolean;
+  };
 
 type AppendInfo<T extends object> = {
   pageInfo: T;
@@ -106,20 +108,18 @@ type AppendInfoAccumulator<T extends object> = {
 };
 
 export const appendMovieTimeComponentToAnchors = <T extends object>({
-  anchorSelectors,
+  anchors$,
+  summaryParent$,
   parentRelativeSelectors,
   match,
   fetchTimeProgress,
   isSamePageInfo,
-  summaryParentSelectors,
 }: AppendToAnchorsOptions<T>): Cleanup => {
   const cleanup = Cleanup.empty();
 
-  const summaryTimeProgress$ = new ReplaySubject<TimeProgress>(1);
-
-  const appendInfoList$ = intervalQuerySelectorAll<HTMLAnchorElement>(anchorSelectors).pipe(
+  const appendInfoList$ = anchors$.pipe(
     scan<
-      NodeListOf<HTMLAnchorElement>,
+      Iterable<HTMLAnchorElement>,
       AppendInfoAccumulator<T>,
       Omit<AppendInfoAccumulator<T>, 'current'>
     >(({ accumulated: prevAccumulated }, anchors) => (
@@ -136,7 +136,7 @@ export const appendMovieTimeComponentToAnchors = <T extends object>({
           return { accumulated, current };
         }
 
-        const pageInfo = matchResult.props;
+        const { pageInfo } = matchResult;
 
         const alreadyAccumulatedAppendInfo = prevAccumulated.find((accumulatedAppendInfo) => (
           isSamePageInfo(accumulatedAppendInfo.pageInfo, pageInfo)
@@ -173,7 +173,6 @@ export const appendMovieTimeComponentToAnchors = <T extends object>({
       }, { accumulated: prevAccumulated, current: [] })
     ), { accumulated: [] }),
     map(({ current }) => current),
-    commonTakeUntil(),
     shareReplay(),
   );
 
@@ -187,9 +186,11 @@ export const appendMovieTimeComponentToAnchors = <T extends object>({
 
   cleanup.add(Cleanup.fromSubscription(anchorsSubscription));
 
-  if (summaryParentSelectors === undefined) {
+  if (summaryParent$ === undefined) {
     return cleanup;
   }
+
+  const summaryTimeProgress$ = new ReplaySubject<TimeProgress>(1);
 
   const summaryTimeProgressSubscription = appendInfoList$.pipe(
     concatMap((appendInfoList) => {
@@ -203,11 +204,44 @@ export const appendMovieTimeComponentToAnchors = <T extends object>({
 
   cleanup.add(
     Cleanup.fromSubscription(summaryTimeProgressSubscription),
-    appendMovieTimeComponentToParent(
-      summaryParentSelectors,
-      summaryTimeProgress$,
-    ),
+    appendMovieTimeComponentToParent(summaryParent$, summaryTimeProgress$),
   );
 
   return cleanup;
+};
+
+export type AppendToAnchorsIfEnabledOptions<T extends object> =
+  & Pick<AppendToAnchorsOptions<T>, 'match' | 'fetchTimeProgress' | 'isSamePageInfo'>
+  & {
+    options: MovieTimeListPageOptionsWithOptionalSummary;
+    until$: Observable<unknown>;
+  };
+
+export const appendMovieTimeComponentToAnchorsIfEnabled = <T extends object>({
+  options: { enabled, parentRelativeSelectors, anchorSelectors, summaryParentSelectors },
+  match,
+  fetchTimeProgress,
+  isSamePageInfo,
+  until$,
+}: AppendToAnchorsIfEnabledOptions<T>): Cleanup => {
+  if (enabled) {
+    return appendMovieTimeComponentToAnchors({
+      anchors$: intervalQuerySelectorAll<HTMLAnchorElement>(anchorSelectors).pipe(
+        takeUntil(until$),
+      ),
+      ...typeof summaryParentSelectors === 'string'
+        ? {
+            summaryParent$: intervalQuerySelector(summaryParentSelectors).pipe(
+              takeUntil(until$),
+            ),
+          }
+        : {},
+      parentRelativeSelectors,
+      match,
+      fetchTimeProgress,
+      isSamePageInfo,
+    });
+  }
+
+  return Cleanup.empty();
 };
