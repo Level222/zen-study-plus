@@ -11,3 +11,12 @@ export const el = <T extends keyof HTMLElementTagNameMap>(
   element.replaceChildren(...children);
   return element;
 };
+
+export type WithRandomId<T extends object> = T & {
+  randomId: string;
+};
+
+export const withRandomId = <T extends object>(obj: T): WithRandomId<T> => ({
+  ...obj,
+  randomId: crypto.randomUUID(),
+});

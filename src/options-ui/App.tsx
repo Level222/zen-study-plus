@@ -1,8 +1,11 @@
 import type { FC } from 'react';
 import type { UserOptions } from '../utils/sync-options';
-import { Container, Snackbar, Typography } from '@mui/material';
+import { Box, Container, Snackbar, Typography } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
+import { withRandomId } from '../utils/helpers';
 import { SyncOptions } from '../utils/sync-options';
+import Glossary from './Glossary';
+import termSections from './term-sections';
 import OptionsForm from './UserOptionsForm';
 import './style.css';
 
@@ -34,13 +37,24 @@ const App: FC = () => {
 
   return (
     <Container component="main" sx={{ p: '24px' }}>
-      <Typography variant="h1" sx={{ fontSize: '2rem' }}>ZEN Study + オプション</Typography>
-      {defaultSyncOptions && (
-        <OptionsForm
-          defaultValues={defaultSyncOptions.user}
-          onSubmit={handleSubmit}
+      <Box component="section">
+        <Typography variant="h1" sx={{ fontSize: '2rem' }}>ZEN Study + オプション</Typography>
+        {defaultSyncOptions && (
+          <OptionsForm
+            defaultValues={defaultSyncOptions.user}
+            onSubmit={handleSubmit}
+          />
+        )}
+      </Box>
+      <Box component="section" sx={{ mt: '35px' }}>
+        <Typography variant="h2" sx={{ fontSize: '1.7rem' }}>用語</Typography>
+        <Glossary
+          termSections={termSections.map((section) => withRandomId({
+            ...section,
+            terms: section.terms.map(withRandomId),
+          }))}
         />
-      )}
+      </Box>
       <Snackbar
         open={snackbarOpen}
         message="保存されました"
