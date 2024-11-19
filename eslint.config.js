@@ -15,4 +15,5 @@ export default antfu({
     // Not required for TypeScript
     'no-undef': 'off',
   },
+  react: true,
 });

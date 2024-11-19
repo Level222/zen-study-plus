@@ -3,6 +3,9 @@ const manifest = {
   name: 'ZEN Study +',
   version: '0.1.0',
   description: 'ZEN Studyに様々な機能を追加するChrome拡張機能',
+  permissions: [
+    'storage',
+  ],
   content_scripts: [
     {
       matches: [
@@ -24,6 +27,13 @@ const manifest = {
       run_at: 'document_start',
     },
   ],
+  options_ui: {
+    page: 'options-ui/index.html',
+    open_in_tab: true,
+  },
+  background: {
+    service_worker: 'background/index.ts',
+  },
 } satisfies chrome.runtime.Manifest;
 
 export default manifest;

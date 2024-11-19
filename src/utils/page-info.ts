@@ -3,7 +3,7 @@ import { isPositiveInteger } from './helpers';
 export type PageMatcherResult<T extends object> =
   | {
     match: true;
-    props: T;
+    pageInfo: T;
   }
   | {
     match: false;
@@ -32,7 +32,7 @@ export const matchCoursePage: PageMatcher<CoursePageInfo> = (url) => {
 
   return {
     match: true,
-    props: { courseId },
+    pageInfo: { courseId },
   };
 };
 
@@ -68,7 +68,7 @@ export const matchChapterPage: PageMatcher<ChapterPageInfo> = (url) => {
   if (!resourceType || !resourceIdStr) {
     return {
       match: true,
-      props: { courseId, chapterId },
+      pageInfo: { courseId, chapterId },
     };
   }
 
@@ -85,13 +85,21 @@ export const matchChapterPage: PageMatcher<ChapterPageInfo> = (url) => {
 
   return {
     match: true,
-    props: { courseId, chapterId, resource: { resourceType, resourceId } },
+    pageInfo: { courseId, chapterId, resource: { resourceType, resourceId } },
   };
 };
 
-export const isSameChapterPageInfo = (a: ChapterPageInfo, b: ChapterPageInfo) => (
-  a.courseId === b.courseId && a.chapterId === b.chapterId
-);
+export const isSameChapterPageInfo = (a: ChapterPageInfo, b: ChapterPageInfo): boolean => {
+  if (!!a.resource !== !!b.resource) {
+    return false;
+  }
+
+  if (a.resource && b.resource && (a.resource.resourceId !== b.resource.resourceId || a.resource.resourceType !== b.resource.resourceType)) {
+    return false;
+  }
+
+  return a.courseId === b.courseId && a.chapterId === b.chapterId;
+};
 
 export type MonthlyReportsPageInfo = {
   year: number;
@@ -116,7 +124,7 @@ export const matchMonthlyReportsPage: PageMatcher<MonthlyReportsPageInfo> = (url
 
   return {
     match: true,
-    props: { year, month },
+    pageInfo: { year, month },
   };
 };
 
@@ -135,7 +143,7 @@ export const matchMyCoursesPage: PageMatcher<MyCoursesPageInfo> = (url) => {
 
   return {
     match: true,
-    props: {
+    pageInfo: {
       tab: url.searchParams.get('tab'),
     },
   };

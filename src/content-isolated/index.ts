@@ -1,5 +1,8 @@
+import type { SyncStorage } from '../utils/storage';
 import type { ContentFeature, PageContent, PageType } from './pages';
-import { filter, fromEvent, map, merge, shareReplay, startWith } from 'rxjs';
+import { concatMap, EMPTY, filter, fromEvent, fromEventPattern, map, merge, of, shareReplay, startWith } from 'rxjs';
+import { fromPromise } from 'rxjs/internal/observable/innerFrom';
+import { SyncOptions } from '../utils/sync-options';
 import movieTime from './movie-time';
 import { knownPageTypes } from './pages';
 
@@ -33,7 +36,7 @@ const pageContent$ = merge(
       if (matchResult.match) {
         return [{
           name,
-          props: matchResult.props,
+          pageInfo: matchResult.pageInfo,
         }];
       }
 
@@ -45,6 +48,25 @@ const pageContent$ = merge(
   shareReplay(1),
 );
 
+const syncOptions$ = merge(
+  fromPromise(chrome.storage.sync.get('options')).pipe(
+    map(({ options }) => options),
+  ),
+  fromEventPattern<{ [K in keyof SyncStorage]?: chrome.storage.StorageChange }>(
+    (handler) => {
+      chrome.storage.sync.onChanged.addListener(handler);
+    },
+    (handler) => {
+      chrome.storage.sync.onChanged.removeListener(handler);
+    },
+  ).pipe(
+    concatMap(({ options }) => options ? of(options.newValue) : EMPTY),
+  ),
+).pipe(
+  map((unknownSyncOptions) => SyncOptions.parse(unknownSyncOptions)),
+  shareReplay(1),
+);
+
 for (const feature of features) {
-  feature({ pageContent$ });
+  feature({ pageContent$, syncOptions$ });
 }
