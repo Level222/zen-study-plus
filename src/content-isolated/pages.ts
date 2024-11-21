@@ -2,7 +2,7 @@ import type { Observable } from 'rxjs';
 import type { Cleanup } from '../utils/cleanup';
 import type { PageMatcher } from '../utils/page-info';
 import type { SyncOptions } from '../utils/sync-options';
-import { matchChapterPage, matchCoursePage, matchMonthlyReportsPage, matchMyCoursesPage } from '../utils/page-info';
+import { matchChapterPage, matchCoursePage, matchMonthlyReportsPage, matchMyCoursesPage, matchSectionPage } from '../utils/page-info';
 
 export type PageTypeDeclaration = {
   name: string;
@@ -17,6 +17,10 @@ export const knownPageTypes = [
   {
     name: 'CHAPTER',
     match: matchChapterPage,
+  },
+  {
+    name: 'SECTION',
+    match: matchSectionPage,
   },
   {
     name: 'MONTHLY_REPORTS',

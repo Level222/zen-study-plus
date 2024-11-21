@@ -2,6 +2,7 @@ import type { UserConfig } from 'vite';
 import path from 'node:path';
 import webExtension from 'vite-plugin-web-extension';
 import zipPack from 'vite-plugin-zip-pack';
+import { CLASS_NAME_PREFIX } from './src/constants';
 import manifest from './src/manifest';
 
 const RELEASE_NAME = 'zen-study-plus';
@@ -21,7 +22,7 @@ export default {
   },
   css: {
     modules: {
-      generateScopedName: '__ZEN_STUDY_PLUS_[local]_[hash:base64:5]',
+      generateScopedName: `${CLASS_NAME_PREFIX}_[local]_[hash:base64:5]`,
     },
   },
   plugins: [

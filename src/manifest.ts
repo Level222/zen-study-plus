@@ -1,3 +1,9 @@
+const baseContentScript = {
+  matches: ['https://www.nnn.ed.nico/*'],
+  all_frames: true,
+  run_at: 'document_start',
+} satisfies NonNullable<chrome.runtime.Manifest['content_scripts']>[number];
+
 const manifest = {
   manifest_version: 3,
   name: 'ZEN Study +',
@@ -8,23 +14,13 @@ const manifest = {
   ],
   content_scripts: [
     {
-      matches: [
-        'https://www.nnn.ed.nico/*',
-      ],
-      js: [
-        'content-main/index.ts',
-      ],
-      run_at: 'document_start',
+      ...baseContentScript,
+      js: ['content-main/index.ts'],
       world: 'MAIN',
     },
     {
-      matches: [
-        'https://www.nnn.ed.nico/*',
-      ],
-      js: [
-        'content-isolated/index.ts',
-      ],
-      run_at: 'document_start',
+      ...baseContentScript,
+      js: ['content-isolated/index.ts'],
     },
   ],
   options_ui: {

@@ -1,4 +1,4 @@
-import { isPositiveInteger } from './helpers';
+import { parseToPositiveIntegers } from './helpers';
 
 export type PageMatcherResult<T extends object> =
   | {
@@ -24,16 +24,16 @@ export const matchCoursePage: PageMatcher<CoursePageInfo> = (url) => {
 
   const [, courseIdStr] = matchResult;
 
-  const courseId = Number(courseIdStr);
+  try {
+    const [courseId] = parseToPositiveIntegers([courseIdStr]);
 
-  if (!isPositiveInteger(courseId)) {
+    return {
+      match: true,
+      pageInfo: { courseId },
+    };
+  } catch {
     return { match: false };
   }
-
-  return {
-    match: true,
-    pageInfo: { courseId },
-  };
 };
 
 export const isSameCoursePageInfo = (a: CoursePageInfo, b: CoursePageInfo) => (
@@ -58,35 +58,30 @@ export const matchChapterPage: PageMatcher<ChapterPageInfo> = (url) => {
 
   const [, courseIdStr, chapterIdStr, resourceType, resourceIdStr] = matchResult;
 
-  const courseId = Number(courseIdStr);
-  const chapterId = Number(chapterIdStr);
+  try {
+    const [courseId, chapterId] = parseToPositiveIntegers([courseIdStr, chapterIdStr]);
 
-  if (!isPositiveInteger(courseId) || !isPositiveInteger(chapterId)) {
-    return { match: false };
-  }
+    if (!resourceType || !resourceIdStr) {
+      return {
+        match: true,
+        pageInfo: { courseId, chapterId },
+      };
+    }
 
-  if (!resourceType || !resourceIdStr) {
+    // Lesson page is not similar to other chapter pages
+    if (resourceType === 'lessons') {
+      return { match: false };
+    }
+
+    const [resourceId] = parseToPositiveIntegers([resourceIdStr]);
+
     return {
       match: true,
-      pageInfo: { courseId, chapterId },
+      pageInfo: { courseId, chapterId, resource: { resourceType, resourceId } },
     };
-  }
-
-  // Lesson page is not similar to other chapter pages
-  if (resourceType === 'lessons') {
+  } catch {
     return { match: false };
   }
-
-  const resourceId = Number(resourceIdStr);
-
-  if (!isPositiveInteger(resourceId)) {
-    return { match: false };
-  }
-
-  return {
-    match: true,
-    pageInfo: { courseId, chapterId, resource: { resourceType, resourceId } },
-  };
 };
 
 export const isSameChapterPageInfo = (a: ChapterPageInfo, b: ChapterPageInfo): boolean => {
@@ -99,6 +94,70 @@ export const isSameChapterPageInfo = (a: ChapterPageInfo, b: ChapterPageInfo): b
   }
 
   return a.courseId === b.courseId && a.chapterId === b.chapterId;
+};
+
+export type SectionPageInfoChapterResource = {
+  type: 'CHAPTER_RESOURCE';
+  courseId: number;
+  chapterId: number;
+  resourceType: string;
+  resourceId: number;
+  isResult: boolean;
+};
+
+export type SectionPageInfoLink = {
+  type: 'LINK';
+  linkId: number;
+};
+
+export type SectionPageInfo = SectionPageInfoChapterResource | SectionPageInfoLink;
+
+export const matchSectionPage: PageMatcher<SectionPageInfo> = (url) => {
+  const chapterResourceMatchResult = url.pathname.match(/^\/contents\/courses\/(\d+)\/chapters\/(\d+)\/([^/]+)\/(\d+)(?:\/([^/]+))?\/?$/);
+
+  if (!chapterResourceMatchResult) {
+    const linkMatchResult = url.pathname.match(/^\/contents\/links\/(\d+)\/?$/);
+
+    if (!linkMatchResult) {
+      return { match: false };
+    }
+
+    const [, linkIdStr] = linkMatchResult;
+
+    try {
+      const [linkId] = parseToPositiveIntegers([linkIdStr]);
+
+      return {
+        match: true,
+        pageInfo: {
+          type: 'LINK',
+          linkId,
+        },
+      };
+    } catch {
+      return { match: false };
+    }
+  }
+
+  const [, courseIdStr, chapterIdStr, resourceType, resourceIdStr, type] = chapterResourceMatchResult;
+
+  try {
+    const [courseId, chapterId, resourceId] = parseToPositiveIntegers([courseIdStr, chapterIdStr, resourceIdStr]);
+
+    return {
+      match: true,
+      pageInfo: {
+        type: 'CHAPTER_RESOURCE',
+        courseId,
+        chapterId,
+        resourceType,
+        resourceId,
+        isResult: type === 'result',
+      },
+    };
+  } catch {
+    return { match: false };
+  }
 };
 
 export type MonthlyReportsPageInfo = {
@@ -115,17 +174,16 @@ export const matchMonthlyReportsPage: PageMatcher<MonthlyReportsPageInfo> = (url
 
   const [, yearStr, monthStr] = matchResult;
 
-  const year = Number(yearStr);
-  const month = Number(monthStr);
+  try {
+    const [year, month] = parseToPositiveIntegers([yearStr, monthStr]);
 
-  if (!isPositiveInteger(year) || !isPositiveInteger(month)) {
+    return {
+      match: true,
+      pageInfo: { year, month },
+    };
+  } catch {
     return { match: false };
   }
-
-  return {
-    match: true,
-    pageInfo: { year, month },
-  };
 };
 
 export const isSameMonthlyReportsPageInfo = (a: MonthlyReportsPageInfo, b: MonthlyReportsPageInfo) => (

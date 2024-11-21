@@ -1,29 +1,36 @@
+import type { MessageEventDetail } from '../utils/events';
 import type { SyncStorage } from '../utils/storage';
 import type { ContentFeature, PageContent, PageType } from './pages';
 import { concatMap, EMPTY, filter, fromEvent, fromEventPattern, map, merge, of, shareReplay, startWith } from 'rxjs';
 import { fromPromise } from 'rxjs/internal/observable/innerFrom';
+import { EVENT_TYPE_PREFIX } from '../constants';
+import { INIT_EVENT_TYPE, LOAD_MAIN_EVENT_TYPE } from '../utils/events';
 import { SyncOptions } from '../utils/sync-options';
 import movieTime from './movie-time';
 import { knownPageTypes } from './pages';
+import wordCount from './word-count';
 
-const messageEventType = `__ZEN_STUDY_PLUS_${crypto.randomUUID()}__`;
+const messageEventType = `${EVENT_TYPE_PREFIX}_${crypto.randomUUID()}`;
 
-fromEvent(window, '__ZEN_STUDY_PLUS_LOAD_MAIN__').pipe(
+fromEvent(window, LOAD_MAIN_EVENT_TYPE).pipe(
   startWith(undefined),
 ).subscribe(() => {
-  window.dispatchEvent(new CustomEvent('__ZEN_STUDY_PLUS_INIT__', {
+  window.dispatchEvent(new CustomEvent(INIT_EVENT_TYPE, {
     detail: messageEventType,
   }));
 });
 
 const features: ContentFeature[] = [
   movieTime,
+  wordCount,
 ];
 
 const pageContent$ = merge(
   fromEvent(window, 'popstate'),
   fromEvent(window, messageEventType).pipe(
-    filter((event) => event instanceof CustomEvent && event.detail === 'CHANGE_STATE'),
+    filter((event) => (
+      event instanceof CustomEvent && event.detail === 'CHANGE_STATE' satisfies MessageEventDetail
+    )),
   ),
 ).pipe(
   startWith(undefined),
