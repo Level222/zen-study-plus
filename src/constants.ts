@@ -1,0 +1,2 @@
+export const CLASS_NAME_PREFIX = '__ZEN_STUDY_PLUS';
+export const EVENT_TYPE_PREFIX = '__ZEN_STUDY_PLUS';

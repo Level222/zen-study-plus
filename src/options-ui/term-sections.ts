@@ -27,11 +27,11 @@ const termSections: TermSection[] = [
       },
       {
         name: 'チャプター',
-        description: '複数の教材をもつグループ。',
+        description: '複数のセクションをもつグループ。',
       },
       {
-        name: '教材',
-        description: '動画や問題など、個々のリソース。',
+        name: 'セクション',
+        description: '動画や問題など、個々の教材。',
       },
       {
         name: '学園',
@@ -69,7 +69,11 @@ const termSections: TermSection[] = [
     terms: [
       {
         name: '教材モーダル',
-        description: 'チャプターページ中で教材を選択したら出てくる教材。',
+        description: 'チャプターページ中でセクションを選択したら出てくる教材。',
+      },
+      {
+        name: 'セクションフレーム',
+        description: '教材モーダル中の、セクションページが埋め込まれているフレーム要素。',
       },
     ],
   },

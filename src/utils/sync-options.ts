@@ -6,24 +6,26 @@ export const MovieTimePageOptions = z.object({
 
 export type MovieTimePageOptions = z.infer<typeof MovieTimePageOptions>;
 
-export const createMovieTimeListPageOptions = (anchorDestination: string) => z.object({
-  ...MovieTimePageOptions.shape,
-  anchorSelectors: z
-    .string()
-    .describe(`[Advanced] ${anchorDestination}へのURLを持つ<a>へのCSSセレクター`),
-  parentRelativeSelectors: z
-    .string()
-    .describe('[Advanced] 動画時間表示の親要素への<a>からの相対CSSセレクター'),
-});
+export const createMovieTimeListPageOptions = (anchorDestination: string) => (
+  MovieTimePageOptions.extend({
+    anchorSelectors: z
+      .string()
+      .describe(`[Advanced] ${anchorDestination}へのURLを持つ<a>へのCSSセレクター`),
+    parentRelativeSelectors: z
+      .string()
+      .describe('[Advanced] 動画時間表示の親要素への<a>からの相対CSSセレクター'),
+  })
+);
 
 export type MovieTimeListPageOptions = z.infer<ReturnType<typeof createMovieTimeListPageOptions>>;
 
-export const createMovieTimeListPageOptionsWithSummary = (anchorDestination: string) => z.object({
-  ...createMovieTimeListPageOptions(anchorDestination).shape,
-  summaryParentSelectors: z
-    .string()
-    .describe('[Advanced] 取得した全チャプター合計動画時間表示の親要素'),
-});
+export const createMovieTimeListPageOptionsWithSummary = (anchorDestination: string) => (
+  createMovieTimeListPageOptions(anchorDestination).extend({
+    summaryParentSelectors: z
+      .string()
+      .describe('[Advanced] 取得した全チャプター合計動画時間表示の親要素'),
+  })
+);
 
 export type MovieTimeListPageOptionsWithSummary = z.infer<ReturnType<typeof createMovieTimeListPageOptionsWithSummary>>;
 
@@ -38,8 +40,7 @@ export const SyncOptionsV1 = z
             .object({
               course: createMovieTimeListPageOptionsWithSummary('チャプターページ')
                 .describe('コースページ'),
-              chapter: z.object({
-                ...MovieTimePageOptions.shape,
+              chapter: MovieTimePageOptions.extend({
                 parentSelectors: z
                   .string()
                   .describe('[Advanced] 動画時間表示の親要素へのCSSセレクター'),
@@ -62,21 +63,46 @@ export const SyncOptionsV1 = z
 
 export type SyncOptionsV1 = z.infer<typeof SyncOptionsV1>;
 
+export const SyncOptionsV2 = SyncOptionsV1.extend({
+  version: z.literal(2),
+  user: SyncOptionsV1.shape.user.extend({
+    wordCount: z
+      .object({
+        enabled: z
+          .boolean()
+          .describe('有効'),
+        timeout: z
+          .coerce
+          .number()
+          .describe('要素取得のタイムアウト [ms]'),
+        fieldSelectors: z
+          .string()
+          .describe('[Advanced] カウントする<input>や<textarea>への、セクションフレーム内ドキュメントからのCSSセレクター'),
+        counterSelectors: z
+          .string()
+          .describe('[Advanced] 単語数表示の親要素への、カウントする<input>や<textarea>の親要素からの相対CSSセレクター'),
+      })
+      .describe('単語数表示'),
+  }),
+});
+
+export type SyncOptionsV2 = z.infer<typeof SyncOptionsV2>;
+
 export const HistoricalSyncOptions = z.union([
   SyncOptionsV1,
-  z.never(),
+  SyncOptionsV2,
 ]);
 
 export type HistoricalSyncOptions = z.infer<typeof HistoricalSyncOptions>;
 
-export const SyncOptions = SyncOptionsV1;
-export type SyncOptions = SyncOptionsV1;
+export const SyncOptions = SyncOptionsV2;
+export type SyncOptions = SyncOptionsV2;
 
 export const UserOptions = SyncOptions.shape.user;
 export type UserOptions = z.infer<typeof UserOptions>;
 
 export const defaultSyncOptions: SyncOptions = {
-  version: 1,
+  version: 2,
   user: {
     movieTime: {
       timeout: 5000,
@@ -110,12 +136,27 @@ export const defaultSyncOptions: SyncOptions = {
         },
       },
     },
+    wordCount: {
+      enabled: true,
+      timeout: 5000,
+      fieldSelectors: 'input, textarea',
+      counterSelectors: ':scope > .indicators div.counter',
+    },
   },
 };
 
 export const migrateHistoricalSyncOptions = (options: HistoricalSyncOptions): SyncOptions => {
   switch (options.version) {
     case 1:
+      return migrateHistoricalSyncOptions({
+        ...options,
+        version: 2,
+        user: {
+          ...options.user,
+          wordCount: { ...defaultSyncOptions.user.wordCount },
+        },
+      });
+    case 2:
       return options;
   }
 };

@@ -2,6 +2,20 @@ export const isPositiveInteger = (value: number) => {
   return Number.isInteger(value) && value >= 0;
 };
 
+export const parseToPositiveIntegers = <T extends string[]>(
+  values: [...T],
+): { [K in keyof T]: number } => {
+  return values.map((value) => {
+    const numberValue = Number(value);
+
+    if (!isPositiveInteger(numberValue)) {
+      throw new TypeError(`${value} is not a positive integer.`);
+    }
+
+    return numberValue;
+  }) as { [K in keyof T]: number };
+};
+
 export const el = <T extends keyof HTMLElementTagNameMap>(
   tagName: T,
   properties: Partial<HTMLElementTagNameMap[T]> = {},
