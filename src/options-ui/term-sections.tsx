@@ -1,6 +1,9 @@
+import type { ReactNode } from 'react';
+import ExternalLink from './ExternalLink';
+
 export type Term = {
   name: string;
-  description: string;
+  description: ReactNode;
 };
 
 export type TermSection = {
@@ -15,6 +18,18 @@ const termSections: TermSection[] = [
       {
         name: '[Advanced]',
         description: '通常変更する必要のない、高度なオプション。',
+      },
+      {
+        name: '既定値',
+        description: (
+          <>
+            全オプションの既定値と、「空に設定すると既定値を使用」の既定値は
+            {' '}
+            <ExternalLink href="https://github.com/Level222/zen-study-plus/blob/main/src/utils/default-options.ts" />
+            {' '}
+            から閲覧可能。
+          </>
+        ),
       },
     ],
   },
@@ -56,7 +71,14 @@ const termSections: TermSection[] = [
       },
       {
         name: 'マイコースページ',
-        description: '受講しているコースが一覧表示される。URLは https://www.nnn.ed.nico/my_course。',
+        description: (
+          <>
+            受講しているコースが一覧表示される。URLは
+            {' '}
+            <ExternalLink href="https://www.nnn.ed.nico/my_course" />
+            。
+          </>
+        ),
       },
       {
         name: '月間レポートページ',

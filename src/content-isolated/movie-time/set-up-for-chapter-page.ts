@@ -1,5 +1,5 @@
 import type { ChapterPageInfo } from '../../utils/page-info';
-import type { SyncOptions } from '../../utils/sync-options';
+import type { SyncOptionsWithFallback } from '../../utils/sync-options';
 import type { PageContent } from '../pages';
 import type { TimeProgress } from './time-progress';
 import { filter, fromEvent, map, type Observable, of, scan, startWith, Subject, switchMap, takeUntil, timer } from 'rxjs';
@@ -10,7 +10,7 @@ import { fetchChapterTimeProgress } from './time-progress';
 
 type ActionInfoBase = {
   source: 'PAGE_OR_OPTION' | 'EXPANDER_CLICKED';
-  syncOptions: SyncOptions;
+  syncOptions: SyncOptionsWithFallback;
 };
 
 type ActionInfoNonChapterPage = ActionInfoBase & {
@@ -23,12 +23,12 @@ type ActionInfoChapterPage = ActionInfoBase & {
 };
 
 type ActionInfoChapterPageWithPrevious = ActionInfoChapterPage & {
-  previousSyncOptions: SyncOptions | null;
+  previousSyncOptions: SyncOptionsWithFallback | null;
   previousChapterPageInfo: ChapterPageInfo | null;
 };
 
 export const setUpMovieTimeComponentForChapterPage = (
-  pageContentAndSyncOptions$: Observable<{ pageContent: PageContent; syncOptions: SyncOptions }>,
+  pageContentAndSyncOptions$: Observable<{ pageContent: PageContent; syncOptions: SyncOptionsWithFallback }>,
 ) => {
   const timeProgress$ = new Subject<TimeProgress>();
 

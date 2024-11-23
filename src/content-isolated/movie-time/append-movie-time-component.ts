@@ -1,6 +1,6 @@
 import type { Observable } from 'rxjs';
 import type { PageMatcher } from '../../utils/page-info';
-import type { MovieTimeListPageOptionsWithSummary } from '../../utils/sync-options';
+import type { MovieTimeListPageOptionsWithSummaryRequired } from '../../utils/sync-options';
 import type { TimeProgress } from './time-progress';
 import { concatMap, connectable, forkJoin, map, ReplaySubject, scan, shareReplay, takeUntil } from 'rxjs';
 import { Cleanup, modifyProperties } from '../../utils/cleanup';
@@ -83,8 +83,8 @@ export const appendMovieTimeComponentToParent = (
 };
 
 type MovieTimeListPageOptionsWithOptionalSummary =
-  & Omit<MovieTimeListPageOptionsWithSummary, 'summaryParentSelectors'>
-  & Partial<Pick<MovieTimeListPageOptionsWithSummary, 'summaryParentSelectors'>>;
+  & Omit<MovieTimeListPageOptionsWithSummaryRequired, 'summaryParentSelectors'>
+  & Partial<Pick<MovieTimeListPageOptionsWithSummaryRequired, 'summaryParentSelectors'>>;
 
 export type AppendToAnchorsOptions<T extends object> =
   & Pick<MovieTimeListPageOptionsWithOptionalSummary, 'parentRelativeSelectors'>

@@ -1,13 +1,14 @@
 import type { MuiAutoFormFieldComponents } from '@autoform/mui';
 import type { AutoFormFieldComponents, AutoFormUIComponents } from '@autoform/react';
 import type { FC } from 'react';
+import type { UserOptions } from '../utils/sync-options';
 import { AutoForm } from '@autoform/mui';
 import { ZodProvider } from '@autoform/zod';
 import { Accordion, AccordionDetails, AccordionSummary, Button, Checkbox, FormControlLabel, Typography } from '@mui/material';
 import { useMemo, useState } from 'react';
-import { UserOptions } from '../utils/sync-options';
+import UserOptionsWithField from './user-options-with-field';
 
-const schema = new ZodProvider(UserOptions);
+const schema = new ZodProvider(UserOptionsWithField);
 
 const SubmitButton: AutoFormUIComponents['SubmitButton'] = () => {
   return (

@@ -1,19 +1,17 @@
-import { defaultSyncOptions, HistoricalSyncOptions, migrateHistoricalSyncOptions } from '../utils/sync-options';
+import { defaultSyncOptions } from '../utils/default-options';
+import { getSyncStorage, setSyncStorage } from '../utils/storage';
+import { HistoricalSyncOptions, migrateHistoricalSyncOptions } from '../utils/sync-options';
 
 chrome.runtime.onInstalled.addListener(async () => {
-  const unknownOptions = (await chrome.storage.sync.get('options')).options;
+  const unknownOptions = (await getSyncStorage('options')).options;
 
   try {
     const options = migrateHistoricalSyncOptions(
       HistoricalSyncOptions.parse(unknownOptions),
     );
 
-    chrome.storage.sync.set({
-      options,
-    });
+    setSyncStorage({ options });
   } catch {
-    chrome.storage.sync.set({
-      options: defaultSyncOptions,
-    });
+    setSyncStorage({ options: defaultSyncOptions });
   }
 });
