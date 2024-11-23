@@ -1,10 +1,13 @@
 import type { MessageEventDetail } from '../utils/events';
 import type { SyncStorage } from '../utils/storage';
 import type { ContentFeature, PageContent, PageType } from './pages';
+import defaults from 'defaults';
 import { concatMap, EMPTY, filter, fromEvent, fromEventPattern, map, merge, of, shareReplay, startWith } from 'rxjs';
 import { fromPromise } from 'rxjs/internal/observable/innerFrom';
 import { EVENT_TYPE_PREFIX } from '../constants';
+import { fallbackSyncOptions } from '../utils/default-options';
 import { INIT_EVENT_TYPE, LOAD_MAIN_EVENT_TYPE } from '../utils/events';
+import { getSyncStorage } from '../utils/storage';
 import { SyncOptions } from '../utils/sync-options';
 import movieTime from './movie-time';
 import { knownPageTypes } from './pages';
@@ -56,7 +59,7 @@ const pageContent$ = merge(
 );
 
 const syncOptions$ = merge(
-  fromPromise(chrome.storage.sync.get('options')).pipe(
+  fromPromise(getSyncStorage('options')).pipe(
     map(({ options }) => options),
   ),
   fromEventPattern<{ [K in keyof SyncStorage]?: chrome.storage.StorageChange }>(
@@ -70,7 +73,10 @@ const syncOptions$ = merge(
     concatMap(({ options }) => options ? of(options.newValue) : EMPTY),
   ),
 ).pipe(
-  map((unknownSyncOptions) => SyncOptions.parse(unknownSyncOptions)),
+  map((unknownSyncOptions) => defaults(
+    SyncOptions.parse(unknownSyncOptions),
+    fallbackSyncOptions,
+  )),
   shareReplay(1),
 );
 

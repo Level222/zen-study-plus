@@ -1,7 +1,7 @@
 import type { Observable } from 'rxjs';
 import type { Cleanup } from '../utils/cleanup';
 import type { PageMatcher } from '../utils/page-info';
-import type { SyncOptions } from '../utils/sync-options';
+import type { SyncOptionsWithFallback } from '../utils/sync-options';
 import { matchChapterPage, matchCoursePage, matchMonthlyReportsPage, matchMyCoursesPage, matchSectionPage } from '../utils/page-info';
 
 export type PageTypeDeclaration = {
@@ -55,7 +55,7 @@ export type ContentFeatureInit = {
    * subscribeした時とページが遷移した時に発火
    */
   pageContent$: Observable<PageContent>;
-  syncOptions$: Observable<SyncOptions>;
+  syncOptions$: Observable<SyncOptionsWithFallback>;
 };
 
 export type ContentFeature = (init: ContentFeatureInit) => void;

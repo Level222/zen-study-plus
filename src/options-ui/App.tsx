@@ -3,6 +3,7 @@ import type { UserOptions } from '../utils/sync-options';
 import { Box, Container, Snackbar, Typography } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 import { withRandomId } from '../utils/helpers';
+import { getSyncStorage, setSyncStorage } from '../utils/storage';
 import { SyncOptions } from '../utils/sync-options';
 import Glossary from './Glossary';
 import termSections from './term-sections';
@@ -14,7 +15,7 @@ const App: FC = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   useEffect(() => {
-    chrome.storage.sync.get('options').then((unknownStorage) => {
+    getSyncStorage('options').then((unknownStorage) => {
       const syncOptions = SyncOptions.parse(unknownStorage.options);
       setDefaultSyncOptions(syncOptions);
     });
@@ -25,7 +26,7 @@ const App: FC = () => {
       return;
     }
 
-    await chrome.storage.sync.set({
+    await setSyncStorage({
       options: {
         ...defaultSyncOptions,
         user: userOptions,
