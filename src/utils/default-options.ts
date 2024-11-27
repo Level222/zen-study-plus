@@ -1,3 +1,4 @@
+import type { OmitDeep } from 'type-fest';
 import type { DeepPickOptional } from './helpers';
 import type { SyncOptions } from './sync-options';
 
@@ -5,7 +6,7 @@ import type { SyncOptions } from './sync-options';
  * 全オプションの既定値
  */
 export const defaultSyncOptions: SyncOptions = {
-  version: 2,
+  version: 3,
   user: {
     movieTime: {
       timeout: 5000,
@@ -31,6 +32,38 @@ export const defaultSyncOptions: SyncOptions = {
       enabled: true,
       timeout: 5000,
     },
+    keyboardShortcuts: {
+      shortcuts: {
+        playOrPause: {
+          patterns: 'K',
+        },
+        seekBackward: {
+          patterns: 'J',
+          seconds: 10,
+        },
+        seekForward: {
+          patterns: 'L',
+          seconds: 10,
+        },
+        mute: {
+          patterns: 'M',
+        },
+        fullscreen: {
+          patterns: 'F',
+        },
+        pictureInPicture: {
+          patterns: 'P',
+        },
+        previousSection: {
+          patterns: 'Ctrl+Shift+ArrowUp',
+        },
+        nextSection: {
+          patterns: 'Ctrl+Shift+ArrowDown',
+        },
+      },
+      defaultShortcutsToDisable: {},
+    },
+    pageComponents: {},
   },
 };
 
@@ -69,5 +102,18 @@ export const fallbackSyncOptions = {
       fieldSelectors: 'input, textarea',
       counterSelectors: ':scope > .indicators div.counter',
     },
+    keyboardShortcuts: {
+      defaultShortcutsToDisable: {
+        patterns: 'Any+F,Any+J,Any+K,Any+L,Any+M',
+      },
+      ignoreTargetSelectors: 'input, textarea',
+    },
+    pageComponents: {
+      sectionVideoSelectors: '#video-player',
+      chapterSectionListItemsSelectors: '[aria-label$="教材リスト"] > li > :nth-child(1) > div:nth-child(1)',
+    },
   },
-} satisfies DeepPickOptional<SyncOptions>;
+} satisfies OmitDeep<
+  DeepPickOptional<SyncOptions>,
+  | 'user.keyboardShortcuts.shortcuts'
+>;

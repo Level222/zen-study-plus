@@ -1,3 +1,5 @@
+import type { IfEmptyObject, OptionalKeysOf, UnknownArray } from 'type-fest';
+
 export const isPositiveInteger = (value: number) => {
   return Number.isInteger(value) && value >= 0;
 };
@@ -35,23 +37,28 @@ export const withRandomId = <T extends object>(obj: T): WithRandomId<T> => ({
   randomId: crypto.randomUUID(),
 });
 
-export type DeepPartial<T> = T extends object ? { [P in keyof T]?: DeepPartial<T[P]> } : T;
+export const existDuplication = (array: unknown[]) => array.length !== new Set(array).size;
 
-export type CanBeEmptyObject<T> = object extends T ? true : false;
+export type NonPlainObject = UnknownArray | ReadonlyMap<unknown, unknown> | ReadonlySet<unknown>;
 
-export type IsEmptyObject<T> = keyof T extends never ? true : false;
-
-export type IsOptional<T, K extends keyof T> = undefined extends T[K]
-  ? CanBeEmptyObject<Pick<T, K>> extends true ? true : false
-  : false;
-
-export type DeepPickOptional<T> = T extends object ? {
-  [K in keyof T as T[K] extends object
-    ? IsEmptyObject<DeepPickOptional<T[K]>> extends true
-      ? never
-      : K
-    : IsOptional<T, K> extends true
-      ? K
-      : never
+export type DeepPickOptional<T> = T extends object ? T extends NonPlainObject ? T : {
+  [K in keyof T as T[K] extends object ? T[K] extends NonPlainObject ? never
+    : IfEmptyObject<DeepPickOptional<T[K]>, never, K>
+    : K extends OptionalKeysOf<T> ? K : never
   ]-?: DeepPickOptional<T[K]>
 } : T;
+
+export const combinations = (array: string[][]) => (
+  array.reduce<string[][]>((acc, currentArray) => (
+    acc.flatMap((accItem) => currentArray.map((item) => [...accItem, item]))
+  ), [[]])
+);
+
+export const createCharListRange = (startChar: string, endChar: string): string[] => {
+  const startCode = startChar.charCodeAt(0);
+  const endCode = endChar.charCodeAt(0);
+
+  return Array.from({ length: endCode - startCode + 1 }, (_, i) => (
+    String.fromCharCode(startCode + i)
+  ));
+};
