@@ -1,16 +1,21 @@
 import type { FieldTypes } from '@autoform/mui';
-import type { MovieTimeListPageOptions, MovieTimeListPageOptionsWithSummary, MovieTimePageOptions } from '../utils/sync-options';
+import type { SuperRefinement } from 'zod';
+import type { KeyboardShortcutOptions, MovieTimeListPageOptions, MovieTimeListPageOptionsWithSummary, MovieTimePageOptions } from '../utils/sync-options';
 import { buildZodFieldConfig } from '@autoform/react';
 import { z } from 'zod';
+import { parsePatterns } from '../utils/shortcut-keys';
 import { UserOptions } from '../utils/sync-options';
 
 const fieldConfig = buildZodFieldConfig<FieldTypes>();
 
 type FieldConfig = Parameters<typeof fieldConfig>[0];
 
-type Field<T> = FieldConfig & (T extends object ? {
-  children?: FieldChildren<T>;
-} : object);
+type Field<T> =
+  & FieldConfig
+  & {
+    superRefinement?: SuperRefinement<T>;
+  }
+  & (T extends object ? { children?: FieldChildren<T> } : object);
 
 type FieldChildren<T> = { [K in keyof T]?: Field<T[K]> };
 
@@ -47,6 +52,25 @@ const createMovieTimeListPageOptionsWithSummaryFieldChildren = (
     description: '取得した全チャプター合計動画時間表示の親要素。空に設定すると既定値を使用。',
   },
 });
+
+const keyboardShortcutOptionsFieldChildren: FieldChildren<KeyboardShortcutOptions> = {
+  patterns: {
+    label: 'キーパターン',
+    description: '設定方法は下記用語解説を参照。空に設定すると無効になる。',
+    superRefinement: (patterns, ctx) => {
+      if (patterns) {
+        try {
+          parsePatterns(patterns);
+        } catch (error) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: error instanceof Error ? error.message : String(error),
+          });
+        }
+      }
+    },
+  },
+};
 
 const userOptionsField: Field<UserOptions> = {
   children: {
@@ -124,6 +148,80 @@ const userOptionsField: Field<UserOptions> = {
         },
       },
     },
+    keyboardShortcuts: {
+      label: 'キーボードショートカット',
+      children: {
+        shortcuts: {
+          label: 'ショートカット',
+          children: {
+            playOrPause: {
+              label: '再生/一時停止',
+              children: keyboardShortcutOptionsFieldChildren,
+            },
+            seekBackward: {
+              label: '巻き戻し',
+              children: {
+                ...keyboardShortcutOptionsFieldChildren,
+                seconds: {
+                  label: '秒数',
+                },
+              },
+            },
+            seekForward: {
+              label: '早送り',
+              children: {
+                ...keyboardShortcutOptionsFieldChildren,
+                seconds: {
+                  label: '秒数',
+                },
+              },
+            },
+            mute: {
+              label: 'ミュート',
+              children: keyboardShortcutOptionsFieldChildren,
+            },
+            fullscreen: {
+              label: '全画面表示',
+              children: keyboardShortcutOptionsFieldChildren,
+            },
+            pictureInPicture: {
+              label: 'ピクチャー・イン・ピクチャー',
+              children: keyboardShortcutOptionsFieldChildren,
+            },
+            previousSection: {
+              label: '前のセクション',
+              children: keyboardShortcutOptionsFieldChildren,
+            },
+            nextSection: {
+              label: '次のセクション',
+              children: keyboardShortcutOptionsFieldChildren,
+            },
+          },
+        },
+        defaultShortcutsToDisable: {
+          label: '[Advanced] 無効にするデフォルトショートカット',
+          description: '無効にしたい、拡張機能無しでZEN Studyにデフォルトで存在するショートカット。空に設定すると既定値を使用。',
+          children: keyboardShortcutOptionsFieldChildren,
+        },
+        ignoreTargetSelectors: {
+          label: '[Advanced] 無視するターゲットセレクター',
+          description: 'ショートカットをトリガーしない要素へのCSSセレクター。空に設定すると既定値を使用。',
+        },
+      },
+    },
+    pageComponents: {
+      label: 'ページ内部品',
+      children: {
+        sectionVideoSelectors: {
+          label: 'セクション動画セレクター',
+          description: 'セクションページ内の動画要素へのCSSセレクター。空に設定すると既定値を使用。',
+        },
+        chapterSectionListItemsSelectors: {
+          label: 'チャプターセクションリストアイテムセレクター',
+          description: 'チャプターページ内のセクションリストの各アイテムへのCSSセレクター。空に設定すると既定値を使用。',
+        },
+      },
+    },
   },
 };
 
@@ -131,32 +229,34 @@ const applyField = <T>(
   schema: z.ZodType<T>,
   field: Field<T>,
 ): z.ZodEffects<z.ZodType<T>> => {
-  const { children, ...config } = { children: undefined, ...field };
+  const { superRefinement, children, ...config } = { children: undefined, ...field };
 
-  let targetSchema: z.ZodType<T>;
+  let currentSchema: z.ZodType<T> = schema;
 
-  if (schema instanceof z.ZodObject && children) {
+  if (superRefinement) {
+    currentSchema = schema.superRefine(superRefinement);
+  }
+
+  if (currentSchema instanceof z.ZodObject && children) {
     const newShape = Object.fromEntries(
-      Object.entries((schema as z.SomeZodObject).shape).map(([key, childSchema]) => {
+      Object.entries((currentSchema as z.SomeZodObject).shape).map(([key, childSchema]) => {
         const childField = (children as NonNullable<FieldChildren<Record<string, unknown>>>)[key];
         return [key, childField ? applyField(childSchema, childField) : childSchema];
       }),
     );
 
-    targetSchema = new z.ZodObject({
-      ...schema._def,
+    currentSchema = new z.ZodObject({
+      ...currentSchema._def,
       shape: () => newShape,
     });
-  } else if (schema instanceof z.ZodNumber) {
-    targetSchema = new z.ZodNumber({
-      ...schema._def,
+  } else if (currentSchema instanceof z.ZodNumber) {
+    currentSchema = new z.ZodNumber({
+      ...currentSchema._def,
       coerce: true,
     }) as any;
-  } else {
-    targetSchema = schema;
   }
 
-  return targetSchema.superRefine(fieldConfig(config));
+  return currentSchema.superRefine(fieldConfig(config));
 };
 
 const UserOptionsWithField = applyField(UserOptions, userOptionsField) as z.ZodEffects<typeof UserOptions>;
