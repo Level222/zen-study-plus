@@ -32,6 +32,10 @@ ZEN Studyに様々な機能を追加するChrome拡張機能
 - 前のセクション (デフォルト: `Ctrl+Shift+ArrowUp`)
 - 次のセクション (デフォルト: `Ctrl+Shift+ArrowDown`)
 
+### `Tab` キーによる操作の改善
+
+- MathJaxの `Tab` キーによるフォーカスの無効化
+
 ## [N予備校+](https://github.com/Level222/n-yobiko-plus)との比較
 
 - **学園のレポート以外の環境で動作**
@@ -46,5 +50,5 @@ ZEN Studyに様々な機能を追加するChrome拡張機能
 - [x] 動画の合計時間の表示
 - [x] テキスト入力時の単語数の表示
 - [x] キーボードショートカット
-- [ ] MathJaxのフォーカスの無効
+- [x] MathJaxの `Tab` キーによるフォーカスの無効化
 - [ ] より良い選択問題のフォーカス

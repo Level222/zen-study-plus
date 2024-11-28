@@ -98,16 +98,29 @@ export const SyncOptionsV3 = SyncOptionsV2.extend({
 
 export type SyncOptionsV3 = z.infer<typeof SyncOptionsV3>;
 
+export const SyncOptionsV4 = SyncOptionsV3.extend({
+  version: z.literal(4),
+  user: SyncOptionsV3.shape.user.extend({
+    disableMathJaxFocus: z.object({
+      enabled: z.boolean(),
+      mathJaxElementSelectors: z.string().optional(),
+    }),
+  }),
+});
+
+export type SyncOptionsV4 = z.infer<typeof SyncOptionsV4>;
+
 export const HistoricalSyncOptions = z.union([
   SyncOptionsV1,
   SyncOptionsV2,
   SyncOptionsV3,
+  SyncOptionsV4,
 ]);
 
 export type HistoricalSyncOptions = z.infer<typeof HistoricalSyncOptions>;
 
-export const SyncOptions = SyncOptionsV3;
-export type SyncOptions = SyncOptionsV3;
+export const SyncOptions = SyncOptionsV4;
+export type SyncOptions = SyncOptionsV4;
 
 export const UserOptions = SyncOptions.shape.user;
 export type UserOptions = z.infer<typeof UserOptions>;
@@ -124,7 +137,7 @@ export const migrateHistoricalSyncOptions = (options: HistoricalSyncOptions): Sy
         },
       });
     case 2:
-      return {
+      return migrateHistoricalSyncOptions({
         ...options,
         version: 3,
         user: {
@@ -132,8 +145,17 @@ export const migrateHistoricalSyncOptions = (options: HistoricalSyncOptions): Sy
           keyboardShortcuts: { ...defaultSyncOptions.user.keyboardShortcuts },
           pageComponents: { ...defaultSyncOptions.user.pageComponents },
         },
-      };
+      });
     case 3:
+      return migrateHistoricalSyncOptions({
+        ...options,
+        version: 4,
+        user: {
+          ...options.user,
+          disableMathJaxFocus: { ...defaultSyncOptions.user.disableMathJaxFocus },
+        },
+      });
+    case 4:
       return options;
   }
 };

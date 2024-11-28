@@ -6,7 +6,7 @@ import type { SyncOptions } from './sync-options';
  * 全オプションの既定値
  */
 export const defaultSyncOptions: SyncOptions = {
-  version: 3,
+  version: 4,
   user: {
     movieTime: {
       timeout: 5000,
@@ -64,6 +64,9 @@ export const defaultSyncOptions: SyncOptions = {
       defaultShortcutsToDisable: {},
     },
     pageComponents: {},
+    disableMathJaxFocus: {
+      enabled: true,
+    },
   },
 };
 
@@ -111,6 +114,9 @@ export const fallbackSyncOptions = {
     pageComponents: {
       sectionVideoSelectors: '#video-player',
       chapterSectionListItemsSelectors: '[aria-label$="教材リスト"] > li > :nth-child(1) > div:nth-child(1)',
+    },
+    disableMathJaxFocus: {
+      mathJaxElementSelectors: 'span.MathJax_CHTML',
     },
   },
 } satisfies OmitDeep<

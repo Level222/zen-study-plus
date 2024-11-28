@@ -110,6 +110,10 @@ const termSections: TermSection[] = [
         name: 'CSSセレクター',
         description: 'ページ中の要素を選択するパターン。詳しくはご自身でご確認ください。',
       },
+      {
+        name: 'MathJax',
+        description: '数式を表示するためのエンジン。',
+      },
     ],
   },
   {

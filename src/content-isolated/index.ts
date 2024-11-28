@@ -9,6 +9,7 @@ import { createMessageEventDispatcher, getMessageEventDetail, INIT_EVENT_TYPE, L
 import { RuntimeMessage } from '../utils/runtime-messages';
 import { getSyncStorage } from '../utils/storage';
 import { SyncOptions } from '../utils/sync-options';
+import disableMathJaxFocus from './disable-math-jax-focus';
 import keyboardShortcuts from './keyboard-shortcuts';
 import movieTime from './movie-time';
 import { knownPageTypes } from './pages';
@@ -29,6 +30,7 @@ const features: ContentFeature[] = [
   movieTime,
   wordCount,
   keyboardShortcuts,
+  disableMathJaxFocus,
 ];
 
 const pageContent$ = merge(
@@ -81,13 +83,6 @@ const syncOptions$ = merge(
   shareReplay(1),
 );
 
-syncOptions$.subscribe((syncOptions) => {
-  dispatchMessageEvent({
-    type: 'CHANGE_OPTIONS',
-    syncOptions,
-  });
-});
-
 const runtimeMessage$ = fromEventPattern(
   (handler) => {
     chrome.runtime.onMessage.addListener(handler);
@@ -102,5 +97,5 @@ const runtimeMessage$ = fromEventPattern(
 );
 
 for (const feature of features) {
-  feature({ pageContent$, syncOptions$, runtimeMessage$ });
+  feature({ pageContent$, syncOptions$, runtimeMessage$, dispatchMessageEvent });
 }

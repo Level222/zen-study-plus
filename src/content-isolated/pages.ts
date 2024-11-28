@@ -1,5 +1,6 @@
 import type { Observable } from 'rxjs';
 import type { Cleanup } from '../utils/cleanup';
+import type { DispatchMessageEvent } from '../utils/events';
 import type { PageMatcher } from '../utils/page-info';
 import type { RuntimeMessage } from '../utils/runtime-messages';
 import type { SyncOptionsWithFallback } from '../utils/sync-options';
@@ -58,6 +59,7 @@ export type ContentFeatureInit = {
   pageContent$: Observable<PageContent>;
   syncOptions$: Observable<SyncOptionsWithFallback>;
   runtimeMessage$: Observable<RuntimeMessage>;
+  dispatchMessageEvent: DispatchMessageEvent;
 };
 
 export type ContentFeature = (init: ContentFeatureInit) => void;
