@@ -15,7 +15,7 @@ type ShortcutWithExecutionProps<T extends KeyboardShortcutOptions> = {
   options: T;
 };
 
-const keyboardShortcuts: ContentFeature = ({ pageContent$, syncOptions$, runtimeMessage$ }) => {
+const keyboardShortcuts: ContentFeature = ({ pageContent$, syncOptions$, runtimeMessage$, dispatchMessageEvent }) => {
   const shortcutWithExecutionProps$ = syncOptions$.pipe(
     map((syncOptions): { [K in keyof ShortcutsOptions]?: ShortcutWithExecutionProps<ShortcutsOptions[K]> } => (
       Object.fromEntries(
@@ -73,6 +73,15 @@ const keyboardShortcuts: ContentFeature = ({ pageContent$, syncOptions$, runtime
         });
       }
     }
+  });
+
+  syncOptions$.subscribe((syncOptions) => {
+    const { patterns } = syncOptions.user.keyboardShortcuts.defaultShortcutsToDisable;
+
+    dispatchMessageEvent({
+      type: 'UPDATE_DEFAULT_SHORTCUTS_TO_DISABLE_PATTERNS',
+      patterns,
+    });
   });
 };
 

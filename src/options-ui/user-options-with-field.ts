@@ -15,9 +15,9 @@ type Field<T> =
   & {
     superRefinement?: SuperRefinement<T>;
   }
-  & (T extends object ? { children?: FieldChildren<T> } : object);
+  & (T extends object ? { children: FieldChildren<T> } : object);
 
-type FieldChildren<T> = { [K in keyof T]?: Field<T[K]> };
+type FieldChildren<T> = { [K in keyof T]-?: Field<T[K]> };
 
 const movieTimePageOptionsFieldChildren: FieldChildren<MovieTimePageOptions> = {
   enabled: {
@@ -209,15 +209,28 @@ const userOptionsField: Field<UserOptions> = {
         },
       },
     },
+    disableMathJaxFocus: {
+      label: 'MathJaxのTabキーによるフォーカスの無効化',
+      children: {
+        enabled: {
+          label: '有効',
+          description: '有効から無効に変更した際はページの再読み込みが必要。',
+        },
+        mathJaxElementSelectors: {
+          label: '[Advanced] MathJax要素セレクター',
+          description: 'MathJaxの出力された数式へのCSSセレクター。空に設定すると既定値を使用。',
+        },
+      },
+    },
     pageComponents: {
       label: 'ページ内部品',
       children: {
         sectionVideoSelectors: {
-          label: 'セクション動画セレクター',
+          label: '[Advanced] セクション動画セレクター',
           description: 'セクションページ内の動画要素へのCSSセレクター。空に設定すると既定値を使用。',
         },
         chapterSectionListItemsSelectors: {
-          label: 'チャプターセクションリストアイテムセレクター',
+          label: '[Advanced] チャプターセクションリストアイテムセレクター',
           description: 'チャプターページ内のセクションリストの各アイテムへのCSSセレクター。空に設定すると既定値を使用。',
         },
       },
@@ -238,9 +251,11 @@ const applyField = <T>(
   }
 
   if (currentSchema instanceof z.ZodObject && children) {
+    const currentShape = (currentSchema as z.SomeZodObject).shape;
+
     const newShape = Object.fromEntries(
-      Object.entries((currentSchema as z.SomeZodObject).shape).map(([key, childSchema]) => {
-        const childField = (children as NonNullable<FieldChildren<Record<string, unknown>>>)[key];
+      Object.entries(children).map(([key, childField]) => {
+        const childSchema = currentShape[key];
         return [key, childField ? applyField(childSchema, childField) : childSchema];
       }),
     );

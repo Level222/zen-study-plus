@@ -1,4 +1,3 @@
-import type { SyncOptionsWithFallback } from './sync-options';
 import { EVENT_TYPE_PREFIX } from '../constants';
 
 export const LOAD_MAIN_EVENT_TYPE = `${EVENT_TYPE_PREFIX}_LOAD_MAIN`;
@@ -8,12 +7,19 @@ export type ChangeStateDetail = {
   type: 'CHANGE_STATE';
 };
 
-export type ChangeSyncOptionsDetail = {
-  type: 'CHANGE_OPTIONS';
-  syncOptions: SyncOptionsWithFallback;
+export type DisableMathJaxInTabOrder = {
+  type: 'DISABLE_MATH_JAX_IN_TAB_ORDER';
 };
 
-export type MessageEventDetail = ChangeStateDetail | ChangeSyncOptionsDetail;
+export type UpdateDefaultShortcutsToDisablePatterns = {
+  type: 'UPDATE_DEFAULT_SHORTCUTS_TO_DISABLE_PATTERNS';
+  patterns: string;
+};
+
+export type MessageEventDetail =
+  | ChangeStateDetail
+  | UpdateDefaultShortcutsToDisablePatterns
+  | DisableMathJaxInTabOrder;
 
 export type DispatchMessageEvent = (detail: MessageEventDetail) => void;
 

@@ -2,6 +2,7 @@ import type { DispatchMessageEvent } from '../utils/events';
 import type { ParsedPattern } from '../utils/shortcut-keys';
 import { createMessageEventDispatcher, getMessageEventDetail, INIT_EVENT_TYPE, LOAD_MAIN_EVENT_TYPE } from '../utils/events';
 import { matchPatterns, parsePatterns } from '../utils/shortcut-keys';
+import disableMathJaxInTabOrder from './disable-math-jax-in-tab-order';
 
 let dispatchMessageEvent: DispatchMessageEvent | undefined;
 let parsedDefaultShortcutsToDisablePatterns: ParsedPattern[] | undefined;
@@ -14,9 +15,19 @@ window.addEventListener(INIT_EVENT_TYPE, (event) => {
     window.addEventListener(messageEventType, (event) => {
       const detail = getMessageEventDetail(event);
 
-      if (detail.type === 'CHANGE_OPTIONS') {
-        const { patterns } = detail.syncOptions.user.keyboardShortcuts.defaultShortcutsToDisable;
-        parsedDefaultShortcutsToDisablePatterns = patterns ? parsePatterns(patterns) : undefined;
+      switch (detail.type) {
+        case 'UPDATE_DEFAULT_SHORTCUTS_TO_DISABLE_PATTERNS': {
+          const { patterns } = detail;
+          parsedDefaultShortcutsToDisablePatterns = patterns ? parsePatterns(patterns) : undefined;
+
+          break;
+        }
+
+        case 'DISABLE_MATH_JAX_IN_TAB_ORDER': {
+          disableMathJaxInTabOrder();
+
+          break;
+        }
       }
     });
   }
