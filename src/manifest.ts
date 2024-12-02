@@ -27,6 +27,9 @@ const manifest = {
     page: 'options-ui/index.html',
     open_in_tab: true,
   },
+  action: {
+    default_popup: 'popup/index.html',
+  },
   background: {
     service_worker: 'background/index.ts',
   },

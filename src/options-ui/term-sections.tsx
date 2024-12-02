@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import ExternalLink from './ExternalLink';
+import ExternalLink from '../components/ExternalLink';
 
 export type Term = {
   name: string;

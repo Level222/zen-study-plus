@@ -1,14 +1,14 @@
 import type { FC } from 'react';
 import type { UserOptions } from '../utils/sync-options';
-import { Box, Container, Snackbar, Typography } from '@mui/material';
+import { Box, Container, CssBaseline, Snackbar, ThemeProvider, Typography } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 import { withRandomId } from '../utils/helpers';
 import { getSyncStorage, setSyncStorage } from '../utils/storage';
 import { SyncOptions } from '../utils/sync-options';
+import theme from '../utils/theme';
 import Glossary from './Glossary';
 import termSections from './term-sections';
 import OptionsForm from './UserOptionsForm';
-import './style.css';
 
 const App: FC = () => {
   const [defaultSyncOptions, setDefaultSyncOptions] = useState<SyncOptions>();
@@ -37,37 +37,40 @@ const App: FC = () => {
   }, [defaultSyncOptions]);
 
   return (
-    <Container component="main" sx={{ p: '24px' }}>
-      <Box component="section">
-        <Typography variant="h1" sx={{ fontSize: '2rem' }}>ZEN Study + オプション</Typography>
-        {defaultSyncOptions && (
-          <OptionsForm
-            defaultValues={defaultSyncOptions.user}
-            onSubmit={handleSubmit}
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Container component="main">
+        <Box component="section" sx={{ my: 3 }}>
+          <Typography variant="h1">ZEN Study + オプション</Typography>
+          {defaultSyncOptions && (
+            <OptionsForm
+              defaultValues={defaultSyncOptions.user}
+              onSubmit={handleSubmit}
+            />
+          )}
+        </Box>
+        <Box component="section" sx={{ my: 3 }}>
+          <Typography variant="h2">用語</Typography>
+          <Glossary
+            termSections={termSections.map((section) => withRandomId({
+              ...section,
+              terms: section.terms.map(withRandomId),
+            }))}
           />
-        )}
-      </Box>
-      <Box component="section" sx={{ mt: '35px' }}>
-        <Typography variant="h2" sx={{ fontSize: '1.7rem' }}>用語</Typography>
-        <Glossary
-          termSections={termSections.map((section) => withRandomId({
-            ...section,
-            terms: section.terms.map(withRandomId),
-          }))}
+        </Box>
+        <Snackbar
+          open={snackbarOpen}
+          message="保存されました"
+          autoHideDuration={3000}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          onClose={(_event, reason) => {
+            if (reason !== 'clickaway') {
+              setSnackbarOpen(false);
+            }
+          }}
         />
-      </Box>
-      <Snackbar
-        open={snackbarOpen}
-        message="保存されました"
-        autoHideDuration={3000}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        onClose={(_event, reason) => {
-          if (reason !== 'clickaway') {
-            setSnackbarOpen(false);
-          }
-        }}
-      />
-    </Container>
+      </Container>
+    </ThemeProvider>
   );
 };
 
