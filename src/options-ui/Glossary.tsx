@@ -13,8 +13,8 @@ const Glossary: FC<GlossaryProps> = ({ termSections }) => {
   return (
     <Box>
       {termSections.map(({ name, terms, randomId: sectionRandomId }) => (
-        <Box key={sectionRandomId} component="section" sx={{ m: '20px 0' }}>
-          <Typography variant="h3" sx={{ fontSize: '1.3rem' }}>{name}</Typography>
+        <Box key={sectionRandomId} component="section" sx={{ my: 2 }}>
+          <Typography variant="h3">{name}</Typography>
           <List>
             {terms.map(({ name, description, randomId: termRandomId }) => (
               <ListItem key={termRandomId}>
