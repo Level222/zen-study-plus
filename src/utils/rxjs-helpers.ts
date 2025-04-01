@@ -1,5 +1,4 @@
-import type { Observable } from 'rxjs';
-import { interval, map, startWith } from 'rxjs';
+import { interval, map, Observable, startWith } from 'rxjs';
 
 export type IntervalQuerySelectorOptions = {
   /**
@@ -52,3 +51,18 @@ export const intervalQuerySelectorAll: IntervalQuerySelectorAll = (
 ): Observable<NodeListOf<Element>> => (
   intervalQuerySelectorBase((target) => target.querySelectorAll(selectors), options)
 );
+
+export const fromMutationObserver = (
+  target: Node,
+  options: MutationObserverInit,
+): Observable<MutationRecord[]> => new Observable((subscriber) => {
+  const observer = new MutationObserver((mutations) => {
+    subscriber.next(mutations);
+  });
+
+  observer.observe(target, options);
+
+  return () => {
+    observer.disconnect();
+  };
+});

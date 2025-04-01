@@ -2,16 +2,25 @@ import type { ChapterPageInfo } from '../../utils/page-info';
 import type { SyncOptionsWithFallback } from '../../utils/sync-options';
 import type { PageContent } from '../pages';
 import type { TimeProgress } from './time-progress';
-import { filter, fromEvent, map, type Observable, of, scan, startWith, Subject, switchMap, takeUntil, timer } from 'rxjs';
+import { filter, map, type Observable, of, scan, startWith, Subject, switchMap, takeUntil, timer } from 'rxjs';
 import { cleanable, Cleanup } from '../../utils/cleanup';
-import { intervalQuerySelector } from '../../utils/interval-query-selector';
+import { fromMutationObserver, intervalQuerySelector } from '../../utils/rxjs-helpers';
 import { appendMovieTimeComponentToParent } from './append-movie-time-component';
 import { fetchChapterTimeProgress } from './time-progress';
 
-type ActionInfoBase = {
-  source: 'PAGE_OR_OPTION' | 'EXPANDER_CLICKED';
-  syncOptions: SyncOptionsWithFallback;
-};
+type ActionInfoBase =
+  & {
+    syncOptions: SyncOptionsWithFallback;
+  }
+  & (
+    | {
+      source: 'PAGE_OR_OPTION';
+    }
+    | {
+      source: 'EXPANDER_CLICKED';
+      expanded: boolean;
+    }
+  );
 
 type ActionInfoNonChapterPage = ActionInfoBase & {
   isChapterPage: false;
@@ -55,8 +64,17 @@ export const setUpMovieTimeComponentForChapterPage = (
       return intervalQuerySelector(movieTimeOptions.pages.chapter.expanderSelectors).pipe(
         takeUntil(timer(movieTimeOptions.timeout)),
         filter((expander) => !!expander),
-        switchMap((expander) => fromEvent(expander, 'click')),
-        map(() => ({ ...actionInfo, source: 'EXPANDER_CLICKED' } as const)),
+        switchMap((expander) => (
+          fromMutationObserver(expander, {
+            attributeFilter: ['aria-expanded'],
+          }).pipe(
+            map(() => ({
+              ...actionInfo,
+              source: 'EXPANDER_CLICKED',
+              expanded: expander.ariaExpanded === 'true',
+            } as const)),
+          )
+        )),
         startWith({ ...actionInfo, source: 'PAGE_OR_OPTION' } as const),
       );
     }),
@@ -101,7 +119,7 @@ export const setUpMovieTimeComponentForChapterPage = (
           break;
 
         case 'EXPANDER_CLICKED':
-          needAppendMovieTimeComponent = false;
+          needAppendMovieTimeComponent = !actionInfo.expanded;
           break;
       }
     } else {

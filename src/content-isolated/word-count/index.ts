@@ -3,7 +3,7 @@ import { combineLatest, filter, fromEvent, startWith, takeUntil, timer } from 'r
 import { CLASS_NAME_PREFIX } from '../../constants';
 import { cleanable, Cleanup, modifyProperties } from '../../utils/cleanup';
 import { el } from '../../utils/helpers';
-import { intervalQuerySelectorAll } from '../../utils/interval-query-selector';
+import { intervalQuerySelectorAll } from '../../utils/rxjs-helpers';
 
 const segmenter = new Intl.Segmenter(undefined, { granularity: 'word' });
 
