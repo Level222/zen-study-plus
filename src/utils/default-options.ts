@@ -84,7 +84,7 @@ export const fallbackSyncOptions = {
         },
         chapter: {
           parentSelectors: ':has(> [aria-label$="教材リスト"]) > div:nth-child(1):not(:has([aria-label="教材フィルタ"]))',
-          expanderSelectors: '[aria-label="教材モーダル"] :where([aria-label="縮小する"], [aria-label="拡大する"])',
+          expanderSelectors: '[aria-label="教材モーダル"] :is([aria-label="縮小する"], [aria-label="拡大する"])',
         },
         myCourse: {
           anchorSelectors: '[aria-label="コース一覧"] a:has(h4)',
@@ -113,7 +113,7 @@ export const fallbackSyncOptions = {
     },
     pageComponents: {
       sectionVideoSelectors: '#video-player',
-      chapterSectionListItemsSelectors: '[aria-label$="教材リスト"] > li > :nth-child(1) > div:nth-child(1)',
+      chapterSectionListItemsSelectors: ':is([aria-label$="教材リスト"], [aria-label="レポートリスト"]) > li > :nth-child(1) > div:nth-child(1)',
     },
     disableMathJaxFocus: {
       mathJaxElementSelectors: 'span.MathJax_CHTML',
