@@ -5,7 +5,7 @@ import type { TimeProgress } from './time-progress';
 import { concatMap, connectable, forkJoin, map, ReplaySubject, scan, shareReplay, takeUntil } from 'rxjs';
 import { Cleanup, modifyProperties } from '../../utils/cleanup';
 import { el } from '../../utils/helpers';
-import { intervalQuerySelector, intervalQuerySelectorAll } from '../../utils/interval-query-selector';
+import { intervalQuerySelector, intervalQuerySelectorAll } from '../../utils/rxjs-helpers';
 import createMovieTimeComponent from './create-motie-time-component';
 import styles from './movie-time.module.css';
 import { flatTimeProgress } from './time-progress';
