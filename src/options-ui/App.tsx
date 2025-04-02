@@ -87,7 +87,7 @@ const App: FC = () => {
           open={snackbarOpen}
           message="保存されました"
           autoHideDuration={3000}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
           onClose={(_event, reason) => {
             if (reason !== 'clickaway') {
               setSnackbarOpen(false);

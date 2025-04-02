@@ -4,7 +4,8 @@ import type { FC } from 'react';
 import type { UserOptions } from '../utils/sync-options';
 import { AutoForm } from '@autoform/mui';
 import { ZodProvider } from '@autoform/zod';
-import { Accordion, AccordionDetails, AccordionSummary, Button, Checkbox, FormControlLabel, Typography } from '@mui/material';
+import SaveIcon from '@mui/icons-material/Save';
+import { Accordion, AccordionDetails, AccordionSummary, Checkbox, Fab, FormControlLabel, Typography } from '@mui/material';
 import { useMemo, useState } from 'react';
 import UserOptionsWithField from './user-options-with-field';
 
@@ -12,7 +13,15 @@ const schema = new ZodProvider(UserOptionsWithField);
 
 const SubmitButton: AutoFormUIComponents['SubmitButton'] = () => {
   return (
-    <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>保存</Button>
+    <Fab
+      type="submit"
+      variant="extended"
+      color="primary"
+      sx={(theme) => ({ position: 'fixed', bottom: theme.spacing(2), right: theme.spacing(2) })}
+    >
+      <SaveIcon sx={{ mr: 1 }} />
+      保存
+    </Fab>
   );
 };
 
