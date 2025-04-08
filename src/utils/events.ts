@@ -35,7 +35,7 @@ export const createMessageEventDispatcher = (
 
 export const getMessageEventDetail = (event: Event): MessageEventDetail => {
   if (!(event instanceof CustomEvent)) {
-    throw new TypeError('Expected an CustomEvent.');
+    throw new TypeError('Expected a CustomEvent.');
   }
 
   return JSON.parse(event.detail);
