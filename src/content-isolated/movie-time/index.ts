@@ -50,7 +50,7 @@ const movieTime: ContentFeature = ({ pageContent$, syncOptions$ }) => {
           break;
 
         case 'MY_COURSES':
-          if (typeof pageInfo.tab === 'string') {
+          if (typeof pageInfo.tab === 'string' && pageInfo.tab !== 'n_school_report') {
             cleanup.add(
               appendMovieTimeComponentToAnchorsIfEnabled({
                 options: movieTimeOptions.pages.myCourse,
