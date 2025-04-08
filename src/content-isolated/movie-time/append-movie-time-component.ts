@@ -17,7 +17,7 @@ const appendMovieTimeComponentIfMissing = (
   const cleanup = Cleanup.empty();
 
   const alreadyExist = [...parent.children].some((element) => (
-    element.classList.contains(styles.container)
+    element.classList.contains(styles.wrapper)
   ));
 
   if (alreadyExist) {
@@ -38,19 +38,19 @@ const appendMovieTimeComponentIfMissing = (
   } = createMovieTimeComponent(timeProgress$);
   cleanup.add(cleanupMovieTimeComponent);
 
-  const container = el('div', { className: styles.container }, [
+  const wrapper = el('div', { className: styles.wrapper }, [
     movieTimeComponent,
   ]);
 
   const { firstChild } = parent;
 
   if (firstChild) {
-    firstChild.after(container);
+    firstChild.after(wrapper);
   } else {
-    parent.append(container);
+    parent.append(wrapper);
   }
 
-  cleanup.add(Cleanup.fromAddedNode(container));
+  cleanup.add(Cleanup.fromAddedNode(wrapper));
 
   return cleanup;
 };

@@ -1,4 +1,4 @@
-.container {
+.wrapper {
   all: initial;
 
   cursor: inherit;
@@ -16,7 +16,7 @@
   white-space: nowrap;
 }
 
-.wrapper {
+.container {
   height: 1.2em;
 }
 
@@ -43,7 +43,7 @@
   background-color: #fff;
   box-shadow: #0000001a 0 0.2rem 0.2rem 0.1rem;
 
-  .wrapper:hover & {
+  .container:hover & {
     width: auto;
     opacity: 1;
     transition: opacity 0.2s;

@@ -35,12 +35,9 @@ export type CreateResult = {
 const createMovieTimeComponent = (
   timeProgress$: Observable<TimeProgress>,
 ): CreateResult => {
-  const container = el('div', {
-    className: styles.wrapper,
-    title: '',
-  });
-
-  container.replaceChildren(el('div', { className: styles.placeholder }));
+  const container = el('div', { className: styles.container, title: '' }, [
+    el('div', { className: styles.placeholder }),
+  ]);
 
   const subscription = timeProgress$.subscribe({
     next: ({ primary, groups }) => {

@@ -1,8 +1,7 @@
 import type { SyncStorage } from '../utils/storage';
 import type { ContentFeature, PageContent, PageType } from './pages';
 import defaults from 'defaults';
-import { concatMap, EMPTY, filter, fromEvent, fromEventPattern, map, merge, of, shareReplay, startWith } from 'rxjs';
-import { fromPromise } from 'rxjs/internal/observable/innerFrom';
+import { concatMap, EMPTY, filter, from, fromEvent, fromEventPattern, map, merge, of, shareReplay, startWith } from 'rxjs';
 import { EVENT_TYPE_PREFIX } from '../constants';
 import { fallbackSyncOptions } from '../utils/default-options';
 import { createMessageEventDispatcher, getMessageEventDetail, INIT_EVENT_TYPE, LOAD_MAIN_EVENT_TYPE } from '../utils/events';
@@ -62,7 +61,7 @@ const pageContent$ = merge(
 );
 
 const syncOptions$ = merge(
-  fromPromise(getSyncStorage('options')).pipe(
+  from(getSyncStorage('options')).pipe(
     map(({ options }) => options),
   ),
   fromEventPattern<{ [K in keyof SyncStorage]?: chrome.storage.StorageChange }>(
