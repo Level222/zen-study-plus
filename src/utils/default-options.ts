@@ -6,7 +6,7 @@ import type { SyncOptions } from './sync-options';
  * 全オプションの既定値
  */
 export const defaultSyncOptions: SyncOptions = {
-  version: 4,
+  version: 5,
   user: {
     movieTime: {
       timeout: 5000,
@@ -18,10 +18,10 @@ export const defaultSyncOptions: SyncOptions = {
           enabled: true,
         },
         myCourse: {
-          enabled: false,
+          enabled: true,
         },
         myCourseReport: {
-          enabled: false,
+          enabled: true,
         },
         monthlyReports: {
           enabled: true,
@@ -100,6 +100,7 @@ export const fallbackSyncOptions = {
           summaryParentSelectors: '[type=flow] > [direction=column] > [direction=row]',
         },
       },
+      myCourseSectionsWrapper: '[role=tabpanel] > :nth-child(2)',
     },
     wordCount: {
       fieldSelectors: 'input, textarea',

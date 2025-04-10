@@ -110,17 +110,29 @@ export const SyncOptionsV4 = SyncOptionsV3.extend({
 
 export type SyncOptionsV4 = z.infer<typeof SyncOptionsV4>;
 
+export const SyncOptionsV5 = SyncOptionsV4.extend({
+  version: z.literal(5),
+  user: SyncOptionsV4.shape.user.extend({
+    movieTime: SyncOptionsV4.shape.user.shape.movieTime.extend({
+      myCourseSectionsWrapper: z.string().optional(),
+    }),
+  }),
+});
+
+export type SyncOptionsV5 = z.infer<typeof SyncOptionsV5>;
+
 export const HistoricalSyncOptions = z.union([
   SyncOptionsV1,
   SyncOptionsV2,
   SyncOptionsV3,
   SyncOptionsV4,
+  SyncOptionsV5,
 ]);
 
 export type HistoricalSyncOptions = z.infer<typeof HistoricalSyncOptions>;
 
-export const SyncOptions = SyncOptionsV4;
-export type SyncOptions = SyncOptionsV4;
+export const SyncOptions = SyncOptionsV5;
+export type SyncOptions = SyncOptionsV5;
 
 export const UserOptions = SyncOptions.shape.user;
 export type UserOptions = z.infer<typeof UserOptions>;
@@ -156,6 +168,29 @@ export const migrateHistoricalSyncOptions = (options: HistoricalSyncOptions): Sy
         },
       });
     case 4:
+      return migrateHistoricalSyncOptions({
+        ...options,
+        version: 5,
+        user: {
+          ...options.user,
+          movieTime: {
+            ...options.user.movieTime,
+            myCourseSectionsWrapper: defaultSyncOptions.user.movieTime.myCourseSectionsWrapper,
+            pages: {
+              ...options.user.movieTime.pages,
+              myCourse: {
+                ...options.user.movieTime.pages.myCourse,
+                enabled: true,
+              },
+              myCourseReport: {
+                ...options.user.movieTime.pages.myCourseReport,
+                enabled: true,
+              },
+            },
+          },
+        },
+      });
+    case 5:
       return options;
   }
 };
