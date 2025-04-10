@@ -3,7 +3,7 @@ import type { SetOptional } from 'type-fest';
 import type { PageMatcher } from '../../utils/page-info';
 import type { MovieTimeListPageOptionsRequired, MovieTimeListPageOptionsWithSummaryRequired } from '../../utils/sync-options';
 import type { TimeProgress } from './time-progress';
-import { concatMap, connectable, forkJoin, map, ReplaySubject, scan, shareReplay, takeUntil } from 'rxjs';
+import { concatMap, connectable, filter, forkJoin, map, ReplaySubject, scan, shareReplay, takeUntil } from 'rxjs';
 import { Cleanup, modifyProperties } from '../../utils/cleanup';
 import { el } from '../../utils/helpers';
 import { intervalQuerySelector, intervalQuerySelectorAll } from '../../utils/rxjs-helpers';
@@ -107,6 +107,7 @@ type AppendInfo<T extends object> = {
 type AppendInfoAccumulator<T extends object> = {
   accumulated: Omit<AppendInfo<T>, 'parent'>[];
   current: AppendInfo<T>[];
+  hasNoChanges: boolean;
 };
 
 export const appendMovieTimeComponentToAnchors = <T extends object>({
@@ -123,19 +124,19 @@ export const appendMovieTimeComponentToAnchors = <T extends object>({
     scan<
       Iterable<HTMLAnchorElement>,
       AppendInfoAccumulator<T>,
-      Omit<AppendInfoAccumulator<T>, 'current'>
+      Pick<AppendInfoAccumulator<T>, 'accumulated'>
     >(({ accumulated: prevAccumulated }, anchors) => (
-      [...anchors].reduce<AppendInfoAccumulator<T>>(({ accumulated, current }, anchor) => {
+      [...anchors].reduce<AppendInfoAccumulator<T>>(({ accumulated, current, hasNoChanges }, anchor) => {
         const parent = anchor.querySelector(parentRelativeSelectors);
 
         if (!(parent instanceof HTMLElement)) {
-          return { accumulated, current };
+          return { accumulated, current, hasNoChanges };
         }
 
         const matchResult = match(new URL(anchor.href));
 
         if (!matchResult.match) {
-          return { accumulated, current };
+          return { accumulated, current, hasNoChanges };
         }
 
         const { pageInfo } = matchResult;
@@ -155,6 +156,7 @@ export const appendMovieTimeComponentToAnchors = <T extends object>({
                 timeProgress$: alreadyAccumulatedAppendInfo.timeProgress$,
               },
             ],
+            hasNoChanges,
           };
         }
 
@@ -171,14 +173,15 @@ export const appendMovieTimeComponentToAnchors = <T extends object>({
             ...current,
             { pageInfo, parent, timeProgress$ },
           ],
+          hasNoChanges: false,
         };
-      }, { accumulated: prevAccumulated, current: [] })
+      }, { accumulated: prevAccumulated, current: [], hasNoChanges: true })
     ), { accumulated: [] }),
-    map(({ current }) => current),
+    map(({ current, hasNoChanges }) => ({ appendInfoList: current, hasNoChanges })),
     shareReplay(),
   );
 
-  const anchorsSubscription = appendInfoList$.subscribe((appendInfoList) => {
+  const anchorsSubscription = appendInfoList$.subscribe(({ appendInfoList }) => {
     for (const { parent, timeProgress$ } of appendInfoList) {
       cleanup.add(
         appendMovieTimeComponentIfMissing(parent, timeProgress$),
@@ -195,7 +198,8 @@ export const appendMovieTimeComponentToAnchors = <T extends object>({
   const summaryTimeProgress$ = new ReplaySubject<TimeProgress>(1);
 
   const summaryTimeProgressSubscription = appendInfoList$.pipe(
-    concatMap((appendInfoList) => {
+    filter(({ hasNoChanges }) => !hasNoChanges),
+    concatMap(({ appendInfoList }) => {
       const timeProgressObservableList = appendInfoList.map(({ timeProgress$ }) => timeProgress$);
 
       return forkJoin(timeProgressObservableList).pipe(
