@@ -10,51 +10,45 @@
   justify-content: end;
 
   font: inherit;
-  font-size: 13px;
+  font-size: 1.3rem;
   line-height: initial;
   color: #828282;
   white-space: nowrap;
 }
 
 .container {
-  height: 1.2em;
+  height: 16px;
 }
 
 .groups {
+  all: initial;
+
   pointer-events: none;
 
   position: absolute;
   z-index: 2147483647;
-  translate: 0 0.3em;
 
-  overflow: hidden;
   display: grid;
   grid-template-columns: max-content 1fr;
-  gap: 0.4em;
+  gap: 8px 6px;
   align-items: baseline;
 
-  width: 0;
-  padding: 0.6em 0.8em;
+  padding: 8px 10px;
 
-  font-size: 0.9em;
+  font: inherit;
+  font-size: 1.2rem;
   color: #222;
+  white-space: nowrap;
 
-  opacity: 0;
   background-color: #fff;
   box-shadow: #0000001a 0 0.2rem 0.2rem 0.1rem;
-
-  .container:hover & {
-    width: auto;
-    opacity: 1;
-    transition: opacity 0.2s;
-  }
 }
 
 .placeholder {
-  width: 7em;
-  height: 1.2em;
+  width: 90px;
+  height: 16px;
   background-color: #f8f8f8;
-  border-radius: 0.6em;
+  border-radius: 8px;
 }
 
 .faint {
