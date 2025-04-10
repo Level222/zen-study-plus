@@ -1,5 +1,5 @@
-import type { Observable } from 'rxjs';
 import type { TimeProgress, TimeProgressGroup, TimeProgressGroupWithLabel } from './time-progress';
+import { count, type Observable, share } from 'rxjs';
 import { Cleanup } from '../../utils/cleanup';
 import { el } from '../../utils/helpers';
 import styles from './movie-time.module.css';
@@ -35,11 +35,17 @@ export type CreateResult = {
 const createMovieTimeComponent = (
   timeProgress$: Observable<TimeProgress>,
 ): CreateResult => {
+  const cleanup = Cleanup.empty();
+
   const container = el('div', { className: styles.container, title: '' }, [
     el('div', { className: styles.placeholder }),
   ]);
 
-  const subscription = timeProgress$.subscribe({
+  const sharedTimeProgress$ = timeProgress$.pipe(
+    share(),
+  );
+
+  const timeProgressSubscription = sharedTimeProgress$.subscribe({
     next: ({ primary, groups }) => {
       container.replaceChildren(
         createTimeProgressGroupComponent(primary),
@@ -51,9 +57,21 @@ const createMovieTimeComponent = (
     },
   });
 
+  cleanup.add(Cleanup.fromSubscription(timeProgressSubscription));
+
+  const countSubscription = sharedTimeProgress$.pipe(
+    count(),
+  ).subscribe((count) => {
+    if (count === 0) {
+      container.replaceChildren();
+    }
+  });
+
+  cleanup.add(Cleanup.fromSubscription(countSubscription));
+
   return {
     movieTimeComponent: container,
-    cleanup: Cleanup.fromSubscription(subscription),
+    cleanup,
   };
 };
 
