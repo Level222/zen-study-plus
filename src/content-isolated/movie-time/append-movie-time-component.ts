@@ -1,6 +1,7 @@
 import type { Observable } from 'rxjs';
+import type { SetOptional } from 'type-fest';
 import type { PageMatcher } from '../../utils/page-info';
-import type { MovieTimeListPageOptionsWithSummaryRequired } from '../../utils/sync-options';
+import type { MovieTimeListPageOptionsRequired, MovieTimeListPageOptionsWithSummaryRequired } from '../../utils/sync-options';
 import type { TimeProgress } from './time-progress';
 import { concatMap, connectable, forkJoin, map, ReplaySubject, scan, shareReplay, takeUntil } from 'rxjs';
 import { Cleanup, modifyProperties } from '../../utils/cleanup';
@@ -82,9 +83,10 @@ export const appendMovieTimeComponentToParent = (
   return cleanup;
 };
 
-type MovieTimeListPageOptionsWithOptionalSummary =
-  & Omit<MovieTimeListPageOptionsWithSummaryRequired, 'summaryParentSelectors'>
-  & Partial<Pick<MovieTimeListPageOptionsWithSummaryRequired, 'summaryParentSelectors'>>;
+type MovieTimeListPageOptionsWithOptionalSummary = SetOptional<
+  MovieTimeListPageOptionsWithSummaryRequired,
+  'summaryParentSelectors'
+>;
 
 export type AppendToAnchorsOptions<T extends object> =
   & Pick<MovieTimeListPageOptionsWithOptionalSummary, 'parentRelativeSelectors'>
@@ -210,32 +212,27 @@ export const appendMovieTimeComponentToAnchors = <T extends object>({
   return cleanup;
 };
 
-export type AppendToAnchorsIfEnabledOptions<T extends object> =
-  & Pick<AppendToAnchorsOptions<T>, 'match' | 'fetchTimeProgress' | 'isSamePageInfo'>
+export type AppendToAnchorsIfEnabledWithSummaryParentObservableOptions<T extends object> =
+  & Pick<AppendToAnchorsOptions<T>, 'summaryParent$' | 'match' | 'fetchTimeProgress' | 'isSamePageInfo'>
   & {
-    options: MovieTimeListPageOptionsWithOptionalSummary;
+    options: MovieTimeListPageOptionsRequired;
     until$: Observable<unknown>;
   };
 
-export const appendMovieTimeComponentToAnchorsIfEnabled = <T extends object>({
-  options: { enabled, parentRelativeSelectors, anchorSelectors, summaryParentSelectors },
+export const appendMovieTimeComponentToAnchorsIfEnabledWithSummaryParentObservable = <T extends object>({
+  options: { enabled, parentRelativeSelectors, anchorSelectors },
   match,
   fetchTimeProgress,
   isSamePageInfo,
+  summaryParent$,
   until$,
-}: AppendToAnchorsIfEnabledOptions<T>): Cleanup => {
+}: AppendToAnchorsIfEnabledWithSummaryParentObservableOptions<T>): Cleanup => {
   if (enabled) {
     return appendMovieTimeComponentToAnchors({
       anchors$: intervalQuerySelectorAll<HTMLAnchorElement>(anchorSelectors).pipe(
         takeUntil(until$),
       ),
-      ...typeof summaryParentSelectors === 'string'
-        ? {
-            summaryParent$: intervalQuerySelector(summaryParentSelectors).pipe(
-              takeUntil(until$),
-            ),
-          }
-        : {},
+      summaryParent$,
       parentRelativeSelectors,
       match,
       fetchTimeProgress,
@@ -244,4 +241,34 @@ export const appendMovieTimeComponentToAnchorsIfEnabled = <T extends object>({
   }
 
   return Cleanup.empty();
+};
+
+export type AppendToAnchorsIfEnabledOptions<T extends object> =
+  & Pick<AppendToAnchorsOptions<T>, 'match' | 'fetchTimeProgress' | 'isSamePageInfo'>
+  & {
+    options: MovieTimeListPageOptionsWithOptionalSummary;
+    until$: Observable<unknown>;
+  };
+
+export const appendMovieTimeComponentToAnchorsIfEnabled = <T extends object>({
+  options: { summaryParentSelectors, ...restOptions },
+  match,
+  fetchTimeProgress,
+  isSamePageInfo,
+  until$,
+}: AppendToAnchorsIfEnabledOptions<T>): Cleanup => {
+  return appendMovieTimeComponentToAnchorsIfEnabledWithSummaryParentObservable({
+    options: restOptions,
+    match,
+    fetchTimeProgress,
+    isSamePageInfo,
+    until$,
+    ...typeof summaryParentSelectors === 'string'
+      ? {
+          summaryParent$: intervalQuerySelector(summaryParentSelectors).pipe(
+            takeUntil(until$),
+          ),
+        }
+      : {},
+  });
 };

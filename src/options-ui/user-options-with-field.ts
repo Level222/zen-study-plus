@@ -106,14 +106,12 @@ const userOptionsField: Field<UserOptions> = {
             },
             myCourse: {
               label: 'マイコースページ',
-              description: '大量の通信が必要なため、常時有効にするのは推奨されない。',
               children: createMovieTimeListPageOptionsFieldChildren({
                 anchorDestination: 'コースページ',
               }),
             },
             myCourseReport: {
               label: 'マイコースページ - レポート',
-              description: '大量の通信が必要なため、常時有効にするのは推奨されない。',
               children: createMovieTimeListPageOptionsFieldChildren({
                 anchorDestination: '月間レポートページ',
               }),
@@ -125,6 +123,10 @@ const userOptionsField: Field<UserOptions> = {
               }),
             },
           },
+        },
+        myCourseSectionsWrapper: {
+          label: '[Advanced] マイコースセクションラッパーセレクター',
+          description: '動画時間セクションを追加する、マイコースページ内の右側のセクションの親要素へのCSSセレクター。空に設定すると既定値を使用。',
         },
       },
     },
