@@ -18,13 +18,25 @@ const clickRelativeSectionListItem = (relativePosition: number, syncOptions: Syn
     syncOptions.user.pageComponents.chapterSectionListItemsSelectors,
   )];
 
-  const currentItemIndex = sectionListItems.findIndex((item) => getComputedStyle(item).boxShadow !== 'none');
-
-  if (currentItemIndex === -1) {
+  if (!sectionListItems.length) {
     return;
   }
 
-  const targetItemIndex = Math.max(Math.min(currentItemIndex + relativePosition, sectionListItems.length - 1), 0);
+  let targetItemIndex: number | undefined;
+
+  const sectionListItemStyles = sectionListItems.map((item) => getComputedStyle(item));
+  const currentItemIndex = sectionListItemStyles.findIndex((style) => style.boxShadow !== 'none');
+
+  if (currentItemIndex === -1) {
+    if (relativePosition >= 0) {
+      targetItemIndex = 0;
+    } else {
+      const firstDisabledItemIndex = sectionListItemStyles.findIndex((style) => style.pointerEvents === 'none');
+      targetItemIndex = firstDisabledItemIndex === -1 ? sectionListItems.length - 1 : firstDisabledItemIndex - 1;
+    }
+  } else {
+    targetItemIndex = Math.max(Math.min(currentItemIndex + relativePosition, sectionListItems.length - 1), 0);
+  }
 
   if (targetItemIndex !== currentItemIndex) {
     sectionListItems[targetItemIndex].click();
