@@ -1,4 +1,5 @@
 import type { TimeProgress, TimeProgressGroup, TimeProgressGroupWithLabel } from './time-progress';
+import { autoUpdate, computePosition, offset, shift } from '@floating-ui/dom';
 import { count, fromEvent, type Observable, share } from 'rxjs';
 import { cleanable, Cleanup } from '../../utils/cleanup';
 import { el } from '../../utils/helpers';
@@ -37,25 +38,36 @@ const makePopover = (triggerElement: HTMLElement, popoverElement: HTMLElement): 
     ], { duration: 150, fill: 'both' }),
   );
 
+  const update = async () => {
+    const { x, y } = await computePosition(triggerElement, popoverElement, {
+      middleware: [
+        offset(3),
+        shift({
+          padding: 5,
+        }),
+      ],
+    });
+
+    Object.assign(popoverElement.style, {
+      left: `${x}px`,
+      top: `${y}px`,
+    });
+  };
+
+  const cleanupAutoUpdate = Cleanup.empty();
+  cleanup.add(cleanupAutoUpdate);
+
   const pointeroverSubscription = fromEvent(triggerElement, 'pointerover').subscribe(() => {
     if (!popoverElement.isConnected) {
       document.body.append(popoverElement);
+
+      cleanupAutoUpdate.add(new Cleanup(
+        autoUpdate(triggerElement, popoverElement, update),
+      ));
     }
 
     animation.playbackRate = 1;
     animation.play();
-
-    const triggerRect = triggerElement.getBoundingClientRect();
-    const popoverRect = popoverElement.getBoundingClientRect();
-
-    const documentMargin = 8;
-    const popoverMargin = 3;
-
-    const horizontalCenter = window.scrollX + triggerRect.left - popoverRect.width / 2 + triggerRect.width / 2;
-    const rightEnd = document.documentElement.scrollWidth - popoverRect.width - documentMargin;
-
-    popoverElement.style.left = `${Math.min(horizontalCenter, rightEnd)}px`;
-    popoverElement.style.top = `${window.scrollY + triggerRect.top + triggerRect.height + popoverMargin}px`;
   });
 
   cleanup.add(Cleanup.fromAddedNode(popoverElement));
@@ -71,6 +83,7 @@ const makePopover = (triggerElement: HTMLElement, popoverElement: HTMLElement): 
   const finishSubscription = fromEvent(animation, 'finish').subscribe(() => {
     if (animation.playbackRate < 0) {
       popoverElement.remove();
+      cleanupAutoUpdate.execute();
     }
   });
 
@@ -100,14 +113,16 @@ const createMovieTimeComponent = (
   const timeProgressSubscription = sharedTimeProgress$.pipe(
     cleanable(),
   ).subscribe({
-    next: ({ value: { primary, groups }, previousCleanup, cleanup }) => {
-      previousCleanup.execute();
+    next: ({ value: { primary, groups }, previousCleanup: previousPopoverCleanup, cleanup: popoverCleanup }) => {
+      previousPopoverCleanup.execute();
+
+      cleanup.add(popoverCleanup);
 
       container.replaceChildren(
         createTimeProgressGroupComponent(primary),
       );
 
-      cleanup.add(makePopover(container, createMovieTimeGroupsComponent(groups)));
+      popoverCleanup.add(makePopover(container, createMovieTimeGroupsComponent(groups)));
     },
     error: () => {
       container.replaceChildren('Error');
