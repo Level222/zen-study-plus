@@ -34,13 +34,13 @@
       npm run build
       ```
 
-    - [ESLint](https://eslint.org)と[Stylelint](https://stylelint.io)でlint、フォーマットを行う
+    - [ESLint](https://eslint.org)と[Stylelint](https://stylelint.io)でlintとフォーマットを行う
 
       ```shell
-      npm run lint          # ESLintでlint、フォーマットの問題を表示
-      npm run lint:fix      # ESLintでlint、フォーマットを修正
-      npm run stylelint     # Stylelintでlint、フォーマットの問題を表示
-      npm run stylelint:fix # Stylelintでlint、フォーマットを修正
+      npm run lint          # ESLintでlintとフォーマットの問題を表示
+      npm run lint:fix      # ESLintで問題を修正
+      npm run stylelint     # StylelintでCSSのlintとフォーマットの問題を表示
+      npm run stylelint:fix # Stylelintで問題を修正
       ```
 
     - コミットメッセージは[Conventional Commits](https://www.conventionalcommits.org/ja/v1.0.0/)に従う
