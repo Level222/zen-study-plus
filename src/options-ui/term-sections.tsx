@@ -97,6 +97,10 @@ const termSections: TermSection[] = [
         name: 'セクションフレーム',
         description: '教材モーダル中の、セクションページが埋め込まれているフレーム要素。',
       },
+      {
+        name: '補助テキスト',
+        description: '動画セクションフレーム下部の補助テキスト教材。',
+      },
     ],
   },
   {

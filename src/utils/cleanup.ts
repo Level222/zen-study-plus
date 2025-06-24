@@ -10,6 +10,21 @@ export class Cleanup {
     return new Cleanup();
   }
 
+  public static fromProperties<T>(obj: T, cleanupProperties: Partial<T>): Cleanup {
+    return new Cleanup(() => {
+      for (const [key, value] of Object.entries(cleanupProperties) as [keyof T, T[keyof T]][]) {
+        obj[key] = value;
+      }
+    });
+  }
+
+  public static fromCurrentProperties<T>(obj: T, propertiesNames: (keyof T)[]) {
+    return Cleanup.fromProperties(
+      obj,
+      Object.fromEntries(propertiesNames.map((key) => [key, obj[key]])) as Partial<T>,
+    );
+  };
+
   public static fromSubscription(subscription: SubscriptionLike): Cleanup {
     return new Cleanup(() => {
       subscription.unsubscribe();
@@ -78,9 +93,5 @@ export const modifyProperties = <T extends object>(
       return [key, savedValue] as const;
     });
 
-  return new Cleanup(() => {
-    for (const [key, value] of saved) {
-      obj[key] = value;
-    }
-  });
+  return Cleanup.fromProperties(obj, Object.fromEntries(saved) as Partial<T>);
 };

@@ -6,7 +6,7 @@ import type { SyncOptions } from './sync-options';
  * 全オプションの既定値
  */
 export const defaultSyncOptions: SyncOptions = {
-  version: 5,
+  version: 6,
   user: {
     movieTime: {
       timeout: 5000,
@@ -67,6 +67,11 @@ export const defaultSyncOptions: SyncOptions = {
     disableMathJaxFocus: {
       enabled: true,
     },
+    subMaterialSizeAdjustment: {
+      enabled: true,
+      additionalHeight: 0,
+      timeout: 5000,
+    },
   },
 };
 
@@ -118,6 +123,9 @@ export const fallbackSyncOptions = {
     },
     disableMathJaxFocus: {
       mathJaxElementSelectors: 'span.MathJax_CHTML',
+    },
+    subMaterialSizeAdjustment: {
+      subMaterialSelectors: 'iframe[aria-label="補助テキスト"]',
     },
   },
 } satisfies OmitDeep<
