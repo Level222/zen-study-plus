@@ -12,6 +12,7 @@ import disableMathJaxFocus from './disable-math-jax-focus';
 import keyboardShortcuts from './keyboard-shortcuts';
 import movieTime from './movie-time';
 import { knownPageTypes } from './pages';
+import subMaterialSizeAdjustment from './sub-material-size-adjustment';
 import wordCount from './word-count';
 
 const messageEventType = `${EVENT_TYPE_PREFIX}_${crypto.randomUUID()}`;
@@ -30,6 +31,7 @@ const features: ContentFeature[] = [
   wordCount,
   keyboardShortcuts,
   disableMathJaxFocus,
+  subMaterialSizeAdjustment,
 ];
 
 const pageContent$ = merge(

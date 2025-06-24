@@ -121,18 +121,33 @@ export const SyncOptionsV5 = SyncOptionsV4.extend({
 
 export type SyncOptionsV5 = z.infer<typeof SyncOptionsV5>;
 
+export const SyncOptionsV6 = SyncOptionsV5.extend({
+  version: z.literal(6),
+  user: SyncOptionsV5.shape.user.extend({
+    subMaterialSizeAdjustment: z.object({
+      enabled: z.boolean(),
+      additionalHeight: z.number(),
+      timeout: z.number(),
+      subMaterialSelectors: z.string().optional(),
+    }),
+  }),
+});
+
+export type SyncOptionsV6 = z.infer<typeof SyncOptionsV6>;
+
 export const HistoricalSyncOptions = z.union([
   SyncOptionsV1,
   SyncOptionsV2,
   SyncOptionsV3,
   SyncOptionsV4,
   SyncOptionsV5,
+  SyncOptionsV6,
 ]);
 
 export type HistoricalSyncOptions = z.infer<typeof HistoricalSyncOptions>;
 
-export const SyncOptions = SyncOptionsV5;
-export type SyncOptions = SyncOptionsV5;
+export const SyncOptions = SyncOptionsV6;
+export type SyncOptions = SyncOptionsV6;
 
 export const UserOptions = SyncOptions.shape.user;
 export type UserOptions = z.infer<typeof UserOptions>;
@@ -191,8 +206,17 @@ export const migrateHistoricalSyncOptions = (options: HistoricalSyncOptions): Sy
         },
       });
     case 5:
+      return {
+        ...options,
+        version: 6,
+        user: {
+          ...options.user,
+          subMaterialSizeAdjustment: { ...defaultSyncOptions.user.subMaterialSizeAdjustment },
+        },
+      };
+    case 6:
       return options;
-  }
+  };
 };
 
 export type SyncOptionsFallback = typeof fallbackSyncOptions;
