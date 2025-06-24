@@ -216,7 +216,7 @@ export const migrateHistoricalSyncOptions = (options: HistoricalSyncOptions): Sy
       };
     case 6:
       return options;
-  };
+  }
 };
 
 export type SyncOptionsFallback = typeof fallbackSyncOptions;

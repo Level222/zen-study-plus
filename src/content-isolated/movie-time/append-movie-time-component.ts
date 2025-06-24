@@ -186,7 +186,7 @@ export const appendMovieTimeComponentToAnchors = <T extends object>({
       cleanup.add(
         appendMovieTimeComponentIfMissing(parent, timeProgress$),
       );
-    };
+    }
   });
 
   cleanup.add(Cleanup.fromSubscription(anchorsSubscription));
