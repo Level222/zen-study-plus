@@ -23,7 +23,7 @@ export class Cleanup {
       obj,
       Object.fromEntries(propertiesNames.map((key) => [key, obj[key]])) as Partial<T>,
     );
-  };
+  }
 
   public static fromSubscription(subscription: SubscriptionLike): Cleanup {
     return new Cleanup(() => {

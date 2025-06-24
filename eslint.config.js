@@ -8,6 +8,7 @@ export default antfu({
   rules: {
     'style/arrow-parens': ['error', 'always'],
     'style/brace-style': ['error', '1tbs'],
+    'style/no-extra-semi': 'error',
     'style/quote-props': ['error', 'consistent'],
     'ts/consistent-type-definitions': 'off',
     // Recommended to use TypeScript compiler for accuracy

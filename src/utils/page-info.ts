@@ -197,7 +197,7 @@ export type MyCoursesPageInfo = {
 export const matchMyCoursesPage: PageMatcher<MyCoursesPageInfo> = (url) => {
   if (!/^\/my_course\/?$/.test(url.pathname)) {
     return { match: false };
-  };
+  }
 
   return {
     match: true,
