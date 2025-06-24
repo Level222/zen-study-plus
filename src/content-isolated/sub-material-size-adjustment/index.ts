@@ -1,5 +1,5 @@
 import type { ContentFeature } from '../pages';
-import { combineLatest, debounceTime, filter, fromEvent, startWith, takeUntil, timer } from 'rxjs';
+import { combineLatest, debounceTime, distinctUntilChanged, filter, fromEvent, startWith, takeUntil, timer } from 'rxjs';
 import { cleanable, Cleanup } from '../../utils/cleanup';
 import { intervalQuerySelector } from '../../utils/rxjs-helpers';
 
@@ -33,6 +33,7 @@ const subMaterialSizeAdjustment: ContentFeature = ({ pageContent$, syncOptions$ 
     const iframeSubscription = intervalQuerySelector<HTMLIFrameElement>(
       subMaterialSizeAdjustmentOptions.subMaterialSelectors,
     ).pipe(
+      distinctUntilChanged(),
       filter((subMaterial) => !!subMaterial),
       takeUntil(timer(subMaterialSizeAdjustmentOptions.timeout)),
       cleanable(),
