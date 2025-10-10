@@ -135,6 +135,17 @@ export const SyncOptionsV6 = SyncOptionsV5.extend({
 
 export type SyncOptionsV6 = z.infer<typeof SyncOptionsV6>;
 
+export const SyncOptionsV7 = SyncOptionsV6.extend({
+  version: z.literal(7),
+  user: SyncOptionsV6.shape.user.extend({
+    disableStickyMovie: z.object({
+      enabled: z.boolean(),
+    }),
+  }),
+});
+
+export type SyncOptionsV7 = z.infer<typeof SyncOptionsV7>;
+
 export const HistoricalSyncOptions = z.union([
   SyncOptionsV1,
   SyncOptionsV2,
@@ -142,12 +153,13 @@ export const HistoricalSyncOptions = z.union([
   SyncOptionsV4,
   SyncOptionsV5,
   SyncOptionsV6,
+  SyncOptionsV7,
 ]);
 
 export type HistoricalSyncOptions = z.infer<typeof HistoricalSyncOptions>;
 
-export const SyncOptions = SyncOptionsV6;
-export type SyncOptions = SyncOptionsV6;
+export const SyncOptions = SyncOptionsV7;
+export type SyncOptions = SyncOptionsV7;
 
 export const UserOptions = SyncOptions.shape.user;
 export type UserOptions = z.infer<typeof UserOptions>;
@@ -206,15 +218,24 @@ export const migrateHistoricalSyncOptions = (options: HistoricalSyncOptions): Sy
         },
       });
     case 5:
-      return {
+      return migrateHistoricalSyncOptions({
         ...options,
         version: 6,
         user: {
           ...options.user,
           subMaterialSizeAdjustment: { ...defaultSyncOptions.user.subMaterialSizeAdjustment },
         },
-      };
+      });
     case 6:
+      return migrateHistoricalSyncOptions({
+        ...options,
+        version: 7,
+        user: {
+          ...options.user,
+          disableStickyMovie: { ...defaultSyncOptions.user.disableStickyMovie },
+        },
+      });
+    case 7:
       return options;
   }
 };

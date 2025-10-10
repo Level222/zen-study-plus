@@ -9,6 +9,7 @@ import { RuntimeMessage } from '../utils/runtime-messages';
 import { getSyncStorage } from '../utils/storage';
 import { SyncOptions } from '../utils/sync-options';
 import disableMathJaxFocus from './disable-math-jax-focus';
+import disableStickyMovie from './disable-sticky-movie';
 import keyboardShortcuts from './keyboard-shortcuts';
 import movieTime from './movie-time';
 import { knownPageTypes } from './pages';
@@ -32,6 +33,7 @@ const features: ContentFeature[] = [
   keyboardShortcuts,
   disableMathJaxFocus,
   subMaterialSizeAdjustment,
+  disableStickyMovie,
 ];
 
 const pageContent$ = merge(
