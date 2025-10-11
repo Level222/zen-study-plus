@@ -209,6 +209,10 @@ const userOptionsField: Field<UserOptions> = {
           label: '[Advanced] 無視するターゲットセレクター',
           description: 'ショートカットをトリガーしない要素へのCSSセレクター。空に設定すると既定値を使用。',
         },
+        videoShortcutTimeout: {
+          label: '動画ショートカットタイムアウト',
+          description: '動画関連のショートカットで、動画がロードされるまでの最長待機時間。単位は [ms]。',
+        },
       },
     },
     disableMathJaxFocus: {

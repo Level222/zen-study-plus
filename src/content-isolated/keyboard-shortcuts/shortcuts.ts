@@ -1,6 +1,7 @@
 import type { ParsedPattern } from '../../utils/shortcut-keys';
 import type { KeyboardShortcutOptions, SyncOptionsWithFallback } from '../../utils/sync-options';
 import type { PageContent } from '../pages';
+import { firstValueFrom, fromEvent, map, take, takeUntil, timer } from 'rxjs';
 
 export type ShortcutExecution<T extends KeyboardShortcutOptions = KeyboardShortcutOptions> = {
   options: T;
@@ -46,29 +47,44 @@ const clickRelativeSectionListItem = (relativePosition: number, syncOptions: Syn
 const getVideoFromDocument = (
   pageContent: PageContent,
   syncOptions: SyncOptionsWithFallback,
-): HTMLVideoElement | undefined => {
+): Promise<HTMLVideoElement | undefined> => {
   const sectionPageType = pageContent.types.find((pageType) => pageType.name === 'SECTION');
 
   if (!sectionPageType) {
-    return;
+    return Promise.resolve(undefined);
   }
 
   const { pageInfo } = sectionPageType;
 
   if (pageInfo.type !== 'CHAPTER_RESOURCE' || pageInfo.resourceType !== 'movies') {
-    return;
+    return Promise.resolve(undefined);
   }
 
   const video = document.querySelector<HTMLVideoElement>(syncOptions.user.pageComponents.sectionVideoSelectors);
 
-  return video ?? undefined;
+  if (!video) {
+    return Promise.resolve(undefined);
+  }
+
+  if (video.readyState < HTMLMediaElement.HAVE_METADATA) {
+    return firstValueFrom(
+      fromEvent(video, 'loadedmetadata').pipe(
+        takeUntil(timer(syncOptions.user.keyboardShortcuts.videoShortcutTimeout)),
+        take(1),
+        map(() => video),
+      ),
+      { defaultValue: undefined },
+    );
+  }
+
+  return Promise.resolve(video);
 };
 
 const shortcuts: {
   [K in keyof ShortcutsOptions]: Shortcut<ShortcutExecution<ShortcutsOptions[K]>>
 } = {
-  playOrPause: ({ pageContent, syncOptions }) => {
-    const video = getVideoFromDocument(pageContent, syncOptions);
+  playOrPause: async ({ pageContent, syncOptions }) => {
+    const video = await getVideoFromDocument(pageContent, syncOptions);
 
     if (!video) {
       return;
@@ -80,29 +96,29 @@ const shortcuts: {
       video.pause();
     }
   },
-  seekBackward: ({ pageContent, syncOptions, options }) => {
-    const video = getVideoFromDocument(pageContent, syncOptions);
+  seekBackward: async ({ pageContent, syncOptions, options }) => {
+    const video = await getVideoFromDocument(pageContent, syncOptions);
 
     if (video) {
       video.currentTime = video.currentTime - options.seconds;
     }
   },
-  seekForward: ({ pageContent, syncOptions, options }) => {
-    const video = getVideoFromDocument(pageContent, syncOptions);
+  seekForward: async ({ pageContent, syncOptions, options }) => {
+    const video = await getVideoFromDocument(pageContent, syncOptions);
 
     if (video) {
       video.currentTime = video.currentTime + options.seconds;
     }
   },
-  mute: ({ pageContent, syncOptions }) => {
-    const video = getVideoFromDocument(pageContent, syncOptions);
+  mute: async ({ pageContent, syncOptions }) => {
+    const video = await getVideoFromDocument(pageContent, syncOptions);
 
     if (video) {
       video.muted = !video.muted;
     }
   },
-  fullscreen: ({ pageContent, syncOptions }) => {
-    const video = getVideoFromDocument(pageContent, syncOptions);
+  fullscreen: async ({ pageContent, syncOptions }) => {
+    const video = await getVideoFromDocument(pageContent, syncOptions);
 
     if (!video) {
       return;
@@ -114,8 +130,8 @@ const shortcuts: {
       video.requestFullscreen();
     }
   },
-  pictureInPicture: ({ pageContent, syncOptions }) => {
-    const video = getVideoFromDocument(pageContent, syncOptions);
+  pictureInPicture: async ({ pageContent, syncOptions }) => {
+    const video = await getVideoFromDocument(pageContent, syncOptions);
 
     if (!video) {
       return;

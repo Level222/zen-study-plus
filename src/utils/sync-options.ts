@@ -4,6 +4,14 @@ import type { fallbackSyncOptions } from './default-options';
 import { z } from 'zod';
 import { defaultSyncOptions } from './default-options';
 
+// オプションの変更方法
+// 1. 一つ前のバージョンのオプションを `extend` して変更を加える
+// 2. `HistoricalSyncOptions` に新バージョンのオプション追加
+// 3. `UserOptions` を新バージョンのオプションに変更
+// 4. `utils/default-options.ts` の既定値を変更
+// 5. `migrateHistoricalSyncOptions` に前バージョンからの移行を追加
+// 6. `options-ui/user-options-with-field.ts` にオプションの説明等を追加
+
 export const MovieTimePageOptions = z.object({
   enabled: z.boolean(),
 });
@@ -146,6 +154,17 @@ export const SyncOptionsV7 = SyncOptionsV6.extend({
 
 export type SyncOptionsV7 = z.infer<typeof SyncOptionsV7>;
 
+export const SyncOptionsV8 = SyncOptionsV7.extend({
+  version: z.literal(8),
+  user: SyncOptionsV7.shape.user.extend({
+    keyboardShortcuts: SyncOptionsV7.shape.user.shape.keyboardShortcuts.extend({
+      videoShortcutTimeout: z.number(),
+    }),
+  }),
+});
+
+export type SyncOptionsV8 = z.infer<typeof SyncOptionsV8>;
+
 export const HistoricalSyncOptions = z.union([
   SyncOptionsV1,
   SyncOptionsV2,
@@ -154,12 +173,13 @@ export const HistoricalSyncOptions = z.union([
   SyncOptionsV5,
   SyncOptionsV6,
   SyncOptionsV7,
+  SyncOptionsV8,
 ]);
 
 export type HistoricalSyncOptions = z.infer<typeof HistoricalSyncOptions>;
 
-export const SyncOptions = SyncOptionsV7;
-export type SyncOptions = SyncOptionsV7;
+export const SyncOptions = SyncOptionsV8;
+export type SyncOptions = SyncOptionsV8;
 
 export const UserOptions = SyncOptions.shape.user;
 export type UserOptions = z.infer<typeof UserOptions>;
@@ -236,6 +256,18 @@ export const migrateHistoricalSyncOptions = (options: HistoricalSyncOptions): Sy
         },
       });
     case 7:
+      return migrateHistoricalSyncOptions({
+        ...options,
+        version: 8,
+        user: {
+          ...options.user,
+          keyboardShortcuts: {
+            ...options.user.keyboardShortcuts,
+            videoShortcutTimeout: defaultSyncOptions.user.keyboardShortcuts.videoShortcutTimeout,
+          },
+        },
+      });
+    case 8:
       return options;
   }
 };
