@@ -244,6 +244,14 @@ const userOptionsField: Field<UserOptions> = {
         },
       },
     },
+    disableStickyMovie: {
+      label: '動画の固定表示の無効化',
+      children: {
+        enabled: {
+          label: '有効',
+        },
+      },
+    },
     pageComponents: {
       label: 'ページ内部品',
       children: {

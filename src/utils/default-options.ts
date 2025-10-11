@@ -6,7 +6,7 @@ import type { SyncOptions } from './sync-options';
  * 全オプションの既定値
  */
 export const defaultSyncOptions: SyncOptions = {
-  version: 6,
+  version: 7,
   user: {
     movieTime: {
       timeout: 5000,
@@ -71,6 +71,9 @@ export const defaultSyncOptions: SyncOptions = {
       enabled: true,
       additionalHeight: 0,
       timeout: 5000,
+    },
+    disableStickyMovie: {
+      enabled: true,
     },
   },
 };

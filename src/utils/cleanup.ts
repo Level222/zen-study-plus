@@ -95,3 +95,36 @@ export const modifyProperties = <T extends object>(
 
   return Cleanup.fromProperties(obj, Object.fromEntries(saved) as Partial<T>);
 };
+
+export class AdditionalStylesheet {
+  private sheet: CSSStyleSheet | undefined;
+
+  public constructor(
+    private cssText: string,
+  ) {}
+
+  public insert(): Cleanup {
+    if (!this.sheet) {
+      this.sheet = new CSSStyleSheet();
+      this.sheet.replaceSync(this.cssText);
+    }
+
+    if (!document.adoptedStyleSheets.includes(this.sheet)) {
+      document.adoptedStyleSheets.push(this.sheet);
+    }
+
+    return new Cleanup(() => {
+      this.remove();
+    });
+  }
+
+  public remove() {
+    if (this.sheet) {
+      const sheetIndex = document.adoptedStyleSheets.indexOf(this.sheet);
+
+      if (sheetIndex) {
+        document.adoptedStyleSheets.splice(sheetIndex, 1);
+      }
+    }
+  }
+}
