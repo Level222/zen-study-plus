@@ -6,7 +6,7 @@ import type { SyncOptions } from './sync-options';
  * 全オプションの既定値
  */
 export const defaultSyncOptions: SyncOptions = {
-  version: 7,
+  version: 8,
   user: {
     movieTime: {
       timeout: 5000,
@@ -62,6 +62,7 @@ export const defaultSyncOptions: SyncOptions = {
         },
       },
       defaultShortcutsToDisable: {},
+      videoShortcutTimeout: 5000,
     },
     pageComponents: {},
     disableMathJaxFocus: {
