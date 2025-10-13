@@ -35,3 +35,13 @@ chrome.runtime.onMessage.addListener((unknownMessage, sender) => {
     }
   }
 });
+
+chrome.webNavigation.onHistoryStateUpdated.addListener((details) => {
+  chrome.tabs.sendMessage<RuntimeMessage>(
+    details.tabId,
+    { type: 'CHANGE_HISTORY_STATE' },
+    { frameId: details.frameId },
+  );
+}, {
+  url: [{ hostEquals: 'www.nnn.ed.nico' }],
+});

@@ -1,5 +1,11 @@
 import { z } from 'zod';
 
+export const ChangeHistoryStateMessage = z.object({
+  type: z.literal('CHANGE_HISTORY_STATE'),
+});
+
+export type ChangeHistoryStateMessage = z.infer<typeof ChangeHistoryStateMessage>;
+
 export const KeyboardEventLike = z.object({
   code: z.string(),
   key: z.string(),
@@ -26,6 +32,7 @@ export const KeyboardShortcutsMessage = z.object({
 export type KeyboardShortcutsMessage = z.infer<typeof KeyboardShortcutsMessage>;
 
 export const RuntimeMessage = z.union([
+  ChangeHistoryStateMessage,
   SendBackKeyboardShortcutsMessage,
   KeyboardShortcutsMessage,
 ]);

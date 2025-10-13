@@ -1,16 +1,15 @@
-import type { DispatchMessageEvent } from '../utils/events';
 import type { ParsedPattern } from '../utils/shortcut-keys';
-import { createMessageEventDispatcher, getMessageEventDetail, INIT_EVENT_TYPE, LOAD_MAIN_EVENT_TYPE } from '../utils/events';
+import { getMessageEventDetail, INIT_EVENT_TYPE, LOAD_MAIN_EVENT_TYPE } from '../utils/events';
 import { matchPatterns, parsePatterns } from '../utils/shortcut-keys';
 import disableMathJaxInTabOrder from './disable-math-jax-in-tab-order';
 
-let dispatchMessageEvent: DispatchMessageEvent | undefined;
+// let dispatchMessageEvent: DispatchMessageEvent | undefined;
 let parsedDefaultShortcutsToDisablePatterns: ParsedPattern[] | undefined;
 
 window.addEventListener(INIT_EVENT_TYPE, (event) => {
   if (event instanceof CustomEvent && typeof event.detail === 'string') {
     const messageEventType = event.detail;
-    dispatchMessageEvent = createMessageEventDispatcher(messageEventType);
+    // dispatchMessageEvent = createMessageEventDispatcher(messageEventType);
 
     window.addEventListener(messageEventType, (event) => {
       const detail = getMessageEventDetail(event);
@@ -54,16 +53,6 @@ const applyProxyToMethods = <T extends PropertyKey, U extends Record<T, (...args
     Object.defineProperty(obj, methodKey, { value: proxyMethod });
   }
 };
-
-applyProxyToMethods(History.prototype, ['pushState', 'replaceState'], (target, thisArg, argArray) => {
-  const returnedValue = Reflect.apply(target, thisArg, argArray);
-
-  if (thisArg === history) {
-    dispatchMessageEvent?.({ type: 'CHANGE_STATE' });
-  }
-
-  return returnedValue;
-});
 
 const callbackApplyHandler: ProxyHandlerApply<
   EventTarget['addEventListener']

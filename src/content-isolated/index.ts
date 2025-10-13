@@ -4,7 +4,7 @@ import defaults from 'defaults';
 import { concatMap, EMPTY, filter, from, fromEvent, fromEventPattern, map, merge, of, shareReplay, startWith } from 'rxjs';
 import { EVENT_TYPE_PREFIX } from '../constants';
 import { fallbackSyncOptions } from '../utils/default-options';
-import { createMessageEventDispatcher, getMessageEventDetail, INIT_EVENT_TYPE, LOAD_MAIN_EVENT_TYPE } from '../utils/events';
+import { createMessageEventDispatcher, INIT_EVENT_TYPE, LOAD_MAIN_EVENT_TYPE } from '../utils/events';
 import { RuntimeMessage } from '../utils/runtime-messages';
 import { getSyncStorage } from '../utils/storage';
 import { SyncOptions } from '../utils/sync-options';
@@ -35,34 +35,6 @@ const features: ContentFeature[] = [
   subMaterialSizeAdjustment,
   disableStickyMovie,
 ];
-
-const pageContent$ = merge(
-  fromEvent(window, 'popstate'),
-  fromEvent(window, messageEventType).pipe(
-    filter((event) => getMessageEventDetail(event).type === 'CHANGE_STATE'),
-  ),
-).pipe(
-  startWith(undefined),
-  map<unknown, PageContent>(() => {
-    const url = new URL(location.href);
-
-    const types = knownPageTypes.flatMap(({ name, match }) => {
-      const matchResult = match(url);
-
-      if (matchResult.match) {
-        return [{
-          name,
-          pageInfo: matchResult.pageInfo,
-        }];
-      }
-
-      return [];
-    }) as PageType[];
-
-    return { url, types };
-  }),
-  shareReplay(1),
-);
 
 const syncOptions$ = merge(
   from(getSyncStorage('options')).pipe(
@@ -96,6 +68,30 @@ const runtimeMessage$ = fromEventPattern(
   (message) => message,
 ).pipe(
   map((unknownMessage) => RuntimeMessage.parse(unknownMessage)),
+  shareReplay(1),
+);
+
+const pageContent$ = runtimeMessage$.pipe(
+  filter((message) => message.type === 'CHANGE_HISTORY_STATE'),
+  startWith(undefined),
+  map<unknown, PageContent>(() => {
+    const url = new URL(location.href);
+
+    const types = knownPageTypes.flatMap(({ name, match }) => {
+      const matchResult = match(url);
+
+      if (matchResult.match) {
+        return [{
+          name,
+          pageInfo: matchResult.pageInfo,
+        }];
+      }
+
+      return [];
+    }) as PageType[];
+
+    return { url, types };
+  }),
   shareReplay(1),
 );
 
