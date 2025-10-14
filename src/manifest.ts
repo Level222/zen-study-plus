@@ -17,6 +17,7 @@ const manifest = {
   },
   permissions: [
     'storage',
+    'webNavigation',
   ],
   content_scripts: [
     {
