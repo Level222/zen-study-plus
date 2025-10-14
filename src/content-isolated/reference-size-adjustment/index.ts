@@ -22,20 +22,19 @@ const referenceSizeAdjustment: ContentFeature = ({ pageContent$, syncOptions$, r
     for (const { name, pageInfo } of pageContent.types) {
       switch (name) {
         case 'REFERENCE': {
-          const resizeSubscription = fromResizeObserver(document.documentElement).pipe(
+          fromResizeObserver(document.documentElement).pipe(
             startWith(undefined),
           ).pipe(
             map(() => Math.ceil(document.documentElement.getBoundingClientRect().height)),
             // 無限ループを回避
             takeWhile((height) => height < referenceSizeAdjustmentOptions.maxHeight, true),
+            takeUntil(cleanup.executed$),
           ).subscribe((height) => {
             chrome.runtime.sendMessage<RuntimeMessage>({
               type: 'SEND_BACK_RESIZE_REFERENCE',
               sendBackHeight: Math.min(height, referenceSizeAdjustmentOptions.maxHeight),
             });
           });
-
-          cleanup.add(Cleanup.fromSubscription(resizeSubscription));
 
           break;
         }
@@ -45,12 +44,13 @@ const referenceSizeAdjustment: ContentFeature = ({ pageContent$, syncOptions$, r
             return;
           }
 
-          const iframeSubscription = intervalQuerySelector<HTMLIFrameElement>(
+          intervalQuerySelector<HTMLIFrameElement>(
             referenceSizeAdjustmentOptions.referenceSelectors,
           ).pipe(
             distinctUntilChanged(),
             filter((reference) => !!reference),
             takeUntil(timer(referenceSizeAdjustmentOptions.timeout)),
+            takeUntil(cleanup.executed$),
             cleanable(),
           ).subscribe(({ value: reference, cleanup: cleanupReference, previousCleanup: previousCleanupReference }) => {
             previousCleanupReference.execute();
@@ -58,16 +58,13 @@ const referenceSizeAdjustment: ContentFeature = ({ pageContent$, syncOptions$, r
 
             cleanupReference.add(Cleanup.fromCurrentProperties(reference.style, ['height']));
 
-            const messageSubscription = runtimeMessage$.pipe(
+            runtimeMessage$.pipe(
               filter((message) => message.type === 'RESIZE_REFERENCE'),
+              takeUntil(cleanupReference.executed$),
             ).subscribe((message) => {
               reference.style.height = `${message.height + referenceSizeAdjustmentOptions.additionalHeight}px`;
             });
-
-            cleanupReference.add(Cleanup.fromSubscription(messageSubscription));
           });
-
-          cleanup.add(Cleanup.fromSubscription(iframeSubscription));
 
           break;
         }

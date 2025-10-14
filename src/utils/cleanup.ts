@@ -1,10 +1,12 @@
-import { type OperatorFunction, pipe, scan, type SubscriptionLike } from 'rxjs';
+import type { Observable, OperatorFunction, SubscriptionLike } from 'rxjs';
+import { pipe, scan, Subject } from 'rxjs';
 
 export type CleanupFunction = () => void;
 
 export class Cleanup {
   private children: Cleanup[] = [];
   private _executeCount = 0;
+  private _executed$ = new Subject<number>();
 
   public static empty(): Cleanup {
     return new Cleanup();
@@ -54,6 +56,7 @@ export class Cleanup {
     }
 
     this._executeCount++;
+    this._executed$.next(this._executeCount);
   }
 
   public add(...cleanupList: Cleanup[]): void {
@@ -62,6 +65,10 @@ export class Cleanup {
 
   public get executeCount(): number {
     return this._executeCount;
+  }
+
+  public get executed$(): Observable<number> {
+    return this._executed$;
   }
 }
 

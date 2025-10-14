@@ -70,15 +70,15 @@ export const appendMovieTimeComponentToParent = (
   const timeProgressSubscription = sharedTimeProgress$.connect();
   cleanup.add(Cleanup.fromSubscription(timeProgressSubscription));
 
-  const subscription = parent$.subscribe((parent) => {
+  parent$.pipe(
+    takeUntil(cleanup.executed$),
+  ).subscribe((parent) => {
     if (parent instanceof HTMLElement) {
       cleanup.add(
         appendMovieTimeComponentIfMissing(parent, sharedTimeProgress$),
       );
     }
   });
-
-  cleanup.add(Cleanup.fromSubscription(subscription));
 
   return cleanup;
 };
@@ -181,7 +181,9 @@ export const appendMovieTimeComponentToAnchors = <T extends object>({
     shareReplay(),
   );
 
-  const anchorsSubscription = appendInfoList$.subscribe(({ appendInfoList }) => {
+  appendInfoList$.pipe(
+    takeUntil(cleanup.executed$),
+  ).subscribe(({ appendInfoList }) => {
     for (const { parent, timeProgress$ } of appendInfoList) {
       cleanup.add(
         appendMovieTimeComponentIfMissing(parent, timeProgress$),
@@ -189,15 +191,13 @@ export const appendMovieTimeComponentToAnchors = <T extends object>({
     }
   });
 
-  cleanup.add(Cleanup.fromSubscription(anchorsSubscription));
-
   if (summaryParent$ === undefined) {
     return cleanup;
   }
 
   const summaryTimeProgress$ = new ReplaySubject<TimeProgress>(1);
 
-  const summaryTimeProgressSubscription = appendInfoList$.pipe(
+  appendInfoList$.pipe(
     filter(({ hasNoChanges }) => !hasNoChanges),
     concatMap(({ appendInfoList }) => {
       const timeProgressObservableList = appendInfoList.map(({ timeProgress$ }) => timeProgress$);
@@ -206,10 +206,11 @@ export const appendMovieTimeComponentToAnchors = <T extends object>({
         map(flatTimeProgress),
       );
     }),
+  ).pipe(
+    takeUntil(cleanup.executed$),
   ).subscribe(summaryTimeProgress$);
 
   cleanup.add(
-    Cleanup.fromSubscription(summaryTimeProgressSubscription),
     appendMovieTimeComponentToParent(summaryParent$, summaryTimeProgress$),
   );
 
