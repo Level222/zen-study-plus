@@ -174,6 +174,7 @@ export const SyncOptionsV9 = SyncOptionsV8.extend({
         .omit({ subMaterialSelectors: true })
         .extend({
           referenceSelectors: SyncOptionsV7.shape.user.shape.subMaterialSizeAdjustment.shape.subMaterialSelectors,
+          maxHeight: z.number(),
         }),
     }),
 });
@@ -285,13 +286,18 @@ export const migrateHistoricalSyncOptions = (options: HistoricalSyncOptions): Sy
       });
     case 8: {
       const { subMaterialSizeAdjustment, ...userOptions } = options.user;
+      const { subMaterialSelectors, ...referenceSizeAdjustment } = subMaterialSizeAdjustment;
 
       return migrateHistoricalSyncOptions({
         ...options,
         version: 9,
         user: {
           ...userOptions,
-          referenceSizeAdjustment: subMaterialSizeAdjustment,
+          referenceSizeAdjustment: {
+            ...referenceSizeAdjustment,
+            referenceSelectors: subMaterialSelectors,
+            maxHeight: defaultSyncOptions.user.referenceSizeAdjustment.maxHeight,
+          },
         },
       });
     }

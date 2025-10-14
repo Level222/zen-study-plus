@@ -71,6 +71,7 @@ export const defaultSyncOptions: SyncOptions = {
     referenceSizeAdjustment: {
       enabled: true,
       additionalHeight: 0,
+      maxHeight: 20000,
       timeout: 5000,
     },
     disableStickyMovie: {

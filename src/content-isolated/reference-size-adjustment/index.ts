@@ -1,6 +1,6 @@
 import type { RuntimeMessage } from '../../utils/runtime-messages';
 import type { ContentFeature } from '../pages';
-import { combineLatest, distinctUntilChanged, filter, startWith, takeUntil, timer } from 'rxjs';
+import { combineLatest, distinctUntilChanged, filter, map, startWith, takeUntil, takeWhile, timer } from 'rxjs';
 import { cleanable, Cleanup } from '../../utils/cleanup';
 import { fromResizeObserver, intervalQuerySelector } from '../../utils/rxjs-helpers';
 
@@ -22,14 +22,20 @@ const referenceSizeAdjustment: ContentFeature = ({ pageContent$, syncOptions$, r
     for (const { name, pageInfo } of pageContent.types) {
       switch (name) {
         case 'REFERENCE': {
-          fromResizeObserver(document.documentElement).pipe(
+          const resizeSubscription = fromResizeObserver(document.documentElement).pipe(
             startWith(undefined),
-          ).subscribe(() => {
+          ).pipe(
+            map(() => Math.ceil(document.documentElement.getBoundingClientRect().height)),
+            // 無限ループを回避
+            takeWhile((height) => height < referenceSizeAdjustmentOptions.maxHeight, true),
+          ).subscribe((height) => {
             chrome.runtime.sendMessage<RuntimeMessage>({
               type: 'SEND_BACK_RESIZE_REFERENCE',
-              sendBackHeight: Math.ceil(document.documentElement.getBoundingClientRect().height),
+              sendBackHeight: Math.min(height, referenceSizeAdjustmentOptions.maxHeight),
             });
           });
+
+          cleanup.add(Cleanup.fromSubscription(resizeSubscription));
 
           break;
         }
