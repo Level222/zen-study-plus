@@ -228,7 +228,7 @@ const userOptionsField: Field<UserOptions> = {
         },
       },
     },
-    subMaterialSizeAdjustment: {
+    referenceSizeAdjustment: {
       label: '補助テキストのサイズ調整',
       children: {
         enabled: {
@@ -238,11 +238,15 @@ const userOptionsField: Field<UserOptions> = {
           label: '余分な高さ',
           description: '補助テキストに追加される余分な高さ。この値を大きくすることでスクロールバーを確実に表示させないようにできる可能性がある。単位は [px]。',
         },
+        maxHeight: {
+          label: '最大高さ',
+          description: '補助テキストの最大高さ。無限ループの回避に使われる。単位は [px]。',
+        },
         timeout: {
           label: '要素取得タイムアウト',
           description: '補助テキストを検索する最長時間。単位は [ms]。',
         },
-        subMaterialSelectors: {
+        referenceSelectors: {
           label: '[Advanced] 補助テキストセレクター',
           description: '補助テキストへのCSSセレクター。空に設定すると既定値を使用。',
         },

@@ -33,6 +33,30 @@ chrome.runtime.onMessage.addListener((unknownMessage, sender) => {
 
       break;
     }
+
+    case 'SEND_BACK_RESIZE_REFERENCE': {
+      const tabId = sender.tab?.id;
+      const frameId = sender.frameId;
+
+      if (!tabId || !frameId) {
+        return;
+      }
+
+      chrome.webNavigation.getFrame({ tabId, frameId }).then((frame) => {
+        if (!frame || frame.parentFrameId === -1) {
+          return;
+        }
+
+        chrome.tabs.sendMessage<RuntimeMessage>(
+          tabId,
+          {
+            type: 'RESIZE_REFERENCE',
+            height: message.sendBackHeight,
+          },
+          { frameId: frame.parentFrameId },
+        );
+      });
+    }
   }
 });
 

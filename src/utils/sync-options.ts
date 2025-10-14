@@ -7,7 +7,7 @@ import { defaultSyncOptions } from './default-options';
 // オプションの変更方法
 // 1. 一つ前のバージョンのオプションを `extend` して変更を加える
 // 2. `HistoricalSyncOptions` に新バージョンのオプション追加
-// 3. `UserOptions` を新バージョンのオプションに変更
+// 3. `SyncOptions` を新バージョンのオプションに変更
 // 4. `utils/default-options.ts` の既定値を変更
 // 5. `migrateHistoricalSyncOptions` に前バージョンからの移行を追加
 // 6. `options-ui/user-options-with-field.ts` にオプションの説明等を追加
@@ -165,6 +165,22 @@ export const SyncOptionsV8 = SyncOptionsV7.extend({
 
 export type SyncOptionsV8 = z.infer<typeof SyncOptionsV8>;
 
+export const SyncOptionsV9 = SyncOptionsV8.extend({
+  version: z.literal(9),
+  user: SyncOptionsV8.shape.user
+    .omit({ subMaterialSizeAdjustment: true })
+    .extend({
+      referenceSizeAdjustment: SyncOptionsV7.shape.user.shape.subMaterialSizeAdjustment
+        .omit({ subMaterialSelectors: true })
+        .extend({
+          referenceSelectors: SyncOptionsV7.shape.user.shape.subMaterialSizeAdjustment.shape.subMaterialSelectors,
+          maxHeight: z.number(),
+        }),
+    }),
+});
+
+export type SyncOptionsV9 = z.infer<typeof SyncOptionsV9>;
+
 export const HistoricalSyncOptions = z.union([
   SyncOptionsV1,
   SyncOptionsV2,
@@ -174,12 +190,13 @@ export const HistoricalSyncOptions = z.union([
   SyncOptionsV6,
   SyncOptionsV7,
   SyncOptionsV8,
+  SyncOptionsV9,
 ]);
 
 export type HistoricalSyncOptions = z.infer<typeof HistoricalSyncOptions>;
 
-export const SyncOptions = SyncOptionsV8;
-export type SyncOptions = SyncOptionsV8;
+export const SyncOptions = SyncOptionsV9;
+export type SyncOptions = SyncOptionsV9;
 
 export const UserOptions = SyncOptions.shape.user;
 export type UserOptions = z.infer<typeof UserOptions>;
@@ -243,7 +260,7 @@ export const migrateHistoricalSyncOptions = (options: HistoricalSyncOptions): Sy
         version: 6,
         user: {
           ...options.user,
-          subMaterialSizeAdjustment: { ...defaultSyncOptions.user.subMaterialSizeAdjustment },
+          subMaterialSizeAdjustment: { ...defaultSyncOptions.user.referenceSizeAdjustment },
         },
       });
     case 6:
@@ -267,7 +284,24 @@ export const migrateHistoricalSyncOptions = (options: HistoricalSyncOptions): Sy
           },
         },
       });
-    case 8:
+    case 8: {
+      const { subMaterialSizeAdjustment, ...userOptions } = options.user;
+      const { subMaterialSelectors, ...referenceSizeAdjustment } = subMaterialSizeAdjustment;
+
+      return migrateHistoricalSyncOptions({
+        ...options,
+        version: 9,
+        user: {
+          ...userOptions,
+          referenceSizeAdjustment: {
+            ...referenceSizeAdjustment,
+            referenceSelectors: subMaterialSelectors,
+            maxHeight: defaultSyncOptions.user.referenceSizeAdjustment.maxHeight,
+          },
+        },
+      });
+    }
+    case 9:
       return options;
   }
 };
