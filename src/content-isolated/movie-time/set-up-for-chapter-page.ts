@@ -114,8 +114,8 @@ export const setUpMovieTimeComponentForChapterPage = (
       switch (source) {
         case 'PAGE_OR_OPTION':
           needAppendMovieTimeComponent = !previousChapterPageInfo
-          || chapterPageInfo.courseId !== previousChapterPageInfo.courseId
-          || chapterPageInfo.chapterId !== previousChapterPageInfo.chapterId;
+            || chapterPageInfo.courseId !== previousChapterPageInfo.courseId
+            || chapterPageInfo.chapterId !== previousChapterPageInfo.chapterId;
           break;
 
         case 'EXPANDER_CLICKED':
