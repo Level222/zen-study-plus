@@ -206,7 +206,6 @@ export const appendMovieTimeComponentToAnchors = <T extends object>({
         map(flatTimeProgress),
       );
     }),
-  ).pipe(
     takeUntil(cleanup.executed$),
   ).subscribe(summaryTimeProgress$);
 
