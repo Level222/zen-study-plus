@@ -42,11 +42,12 @@ const wordCount: ContentFeature = ({ pageContent$, syncOptions$ }) => {
       return;
     }
 
-    const fieldsSubscription = intervalQuerySelectorAll<HTMLInputElement | HTMLTextAreaElement>(
+    intervalQuerySelectorAll<HTMLInputElement | HTMLTextAreaElement>(
       wordCountOptions.fieldSelectors,
     ).pipe(
       filter((fieldNodeList) => fieldNodeList.length > 0),
       takeUntil(timer(wordCountOptions.timeout)),
+      takeUntil(cleanup.executed$),
     ).subscribe((fieldNodeList) => {
       const fields = [...fieldNodeList].flatMap((field) => {
         const counter = field.parentElement?.querySelector<HTMLDivElement>(wordCountOptions.counterSelectors);
@@ -67,17 +68,14 @@ const wordCount: ContentFeature = ({ pageContent$, syncOptions$ }) => {
         counter.append(wordCountElement);
         cleanup.add(Cleanup.fromAddedNode(wordCountElement));
 
-        const inputSubscription = fromEvent(field, 'input').pipe(
+        fromEvent(field, 'input').pipe(
           startWith(undefined),
+          takeUntil(cleanup.executed$),
         ).subscribe(() => {
           wordCountElement.textContent = `${countWords(field.value)}単語`;
         });
-
-        cleanup.add(Cleanup.fromSubscription(inputSubscription));
       }
     });
-
-    cleanup.add(Cleanup.fromSubscription(fieldsSubscription));
   });
 };
 

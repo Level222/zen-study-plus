@@ -1,6 +1,6 @@
 import type { TimeProgress, TimeProgressGroup, TimeProgressGroupWithLabel } from './time-progress';
 import { autoUpdate, computePosition, offset, shift } from '@floating-ui/dom';
-import { count, fromEvent, type Observable, share } from 'rxjs';
+import { count, fromEvent, type Observable, share, takeUntil } from 'rxjs';
 import { cleanable, Cleanup } from '../../utils/cleanup';
 import { el } from '../../utils/helpers';
 import styles from './movie-time.module.css';
@@ -57,7 +57,9 @@ const makePopover = (triggerElement: HTMLElement, popoverElement: HTMLElement): 
   const cleanupAutoUpdate = Cleanup.empty();
   cleanup.add(cleanupAutoUpdate);
 
-  const pointeroverSubscription = fromEvent(triggerElement, 'pointerover').subscribe(() => {
+  fromEvent(triggerElement, 'pointerover').pipe(
+    takeUntil(cleanup.executed$),
+  ).subscribe(() => {
     if (!popoverElement.isConnected) {
       document.body.append(popoverElement);
 
@@ -71,23 +73,22 @@ const makePopover = (triggerElement: HTMLElement, popoverElement: HTMLElement): 
   });
 
   cleanup.add(Cleanup.fromAddedNode(popoverElement));
-  cleanup.add(Cleanup.fromSubscription(pointeroverSubscription));
 
-  const pointeroutSubscription = fromEvent(triggerElement, 'pointerout').subscribe(() => {
+  fromEvent(triggerElement, 'pointerout').pipe(
+    takeUntil(cleanup.executed$),
+  ).subscribe(() => {
     animation.playbackRate = -1;
     animation.play();
   });
 
-  cleanup.add(Cleanup.fromSubscription(pointeroutSubscription));
-
-  const finishSubscription = fromEvent(animation, 'finish').subscribe(() => {
+  fromEvent(animation, 'finish').pipe(
+    takeUntil(cleanup.executed$),
+  ).subscribe(() => {
     if (animation.playbackRate < 0) {
       popoverElement.remove();
       cleanupAutoUpdate.execute();
     }
   });
-
-  cleanup.add(Cleanup.fromSubscription(finishSubscription));
 
   return cleanup;
 };
@@ -110,7 +111,8 @@ const createMovieTimeComponent = (
     share(),
   );
 
-  const timeProgressSubscription = sharedTimeProgress$.pipe(
+  sharedTimeProgress$.pipe(
+    takeUntil(cleanup.executed$),
     cleanable(),
   ).subscribe({
     next: ({ value: { primary, groups }, previousCleanup: previousPopoverCleanup, cleanup: popoverCleanup }) => {
@@ -129,17 +131,14 @@ const createMovieTimeComponent = (
     },
   });
 
-  cleanup.add(Cleanup.fromSubscription(timeProgressSubscription));
-
-  const countSubscription = sharedTimeProgress$.pipe(
+  sharedTimeProgress$.pipe(
     count(),
+    takeUntil(cleanup.executed$),
   ).subscribe((count) => {
     if (count === 0) {
       container.replaceChildren();
     }
   });
-
-  cleanup.add(Cleanup.fromSubscription(countSubscription));
 
   return {
     movieTimeComponent: container,

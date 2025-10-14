@@ -3,7 +3,7 @@ import type { SyncOptionsWithFallback } from '../../utils/sync-options';
 import type { PageContent } from '../pages';
 import type { TimeProgress } from './time-progress';
 import { filter, map, type Observable, of, scan, startWith, Subject, switchMap, takeUntil, timer } from 'rxjs';
-import { cleanable, Cleanup } from '../../utils/cleanup';
+import { cleanable } from '../../utils/cleanup';
 import { fromMutationObserver, intervalQuerySelector } from '../../utils/rxjs-helpers';
 import { appendMovieTimeComponentToParent } from './append-movie-time-component';
 import { fetchChapterTimeProgress } from './time-progress';
@@ -141,10 +141,10 @@ export const setUpMovieTimeComponentForChapterPage = (
       cleanup.add(previousCleanup);
     }
 
-    const subscription = fetchChapterTimeProgress(chapterPageInfo).subscribe((timeProgress) => {
+    fetchChapterTimeProgress(chapterPageInfo).pipe(
+      takeUntil(cleanup.executed$),
+    ).subscribe((timeProgress) => {
       timeProgress$.next(timeProgress);
     });
-
-    cleanup.add(Cleanup.fromSubscription(subscription));
   });
 };

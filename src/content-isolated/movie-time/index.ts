@@ -55,9 +55,10 @@ const movieTime: ContentFeature = ({ pageContent$, syncOptions$ }) => {
         }
 
         case 'MY_COURSES': {
-          const sectionWrapperSubscription = intervalQuerySelector('[role=tabpanel] > :nth-child(2)').pipe(
+          intervalQuerySelector('[role=tabpanel] > :nth-child(2)').pipe(
             filter((parent) => !!parent),
             takeUntil(until$),
+            takeUntil(cleanup.executed$),
           ).subscribe((sectionsWrapper) => {
             const alreadyExist = [...sectionsWrapper.children].some((element) => (
               element.classList.contains(styles.section)
@@ -80,7 +81,9 @@ const movieTime: ContentFeature = ({ pageContent$, syncOptions$ }) => {
             sectionsWrapper.prepend(section);
             cleanup.add(Cleanup.fromAddedNode(section));
 
-            const clickSubscription = fromEvent(button, 'click').subscribe(() => {
+            fromEvent(button, 'click').pipe(
+              takeUntil(cleanup.executed$),
+            ).subscribe(() => {
               button.disabled = true;
 
               if (typeof pageInfo.tab === 'string' && pageInfo.tab !== 'n_school_report') {
@@ -109,11 +112,7 @@ const movieTime: ContentFeature = ({ pageContent$, syncOptions$ }) => {
                 );
               }
             });
-
-            cleanup.add(Cleanup.fromSubscription(clickSubscription));
           });
-
-          cleanup.add(Cleanup.fromSubscription(sectionWrapperSubscription));
 
           break;
         }
