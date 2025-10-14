@@ -4,7 +4,7 @@ import type { DispatchMessageEvent } from '../utils/events';
 import type { PageMatcher } from '../utils/page-info';
 import type { RuntimeMessage } from '../utils/runtime-messages';
 import type { SyncOptionsWithFallback } from '../utils/sync-options';
-import { matchChapterPage, matchCoursePage, matchMonthlyReportsPage, matchMyCoursesPage, matchSectionPage } from '../utils/page-info';
+import { matchChapterPage, matchCoursePage, matchMonthlyReportsPage, matchMyCoursesPage, matchReferencePage, matchSectionPage } from '../utils/page-info';
 
 export type PageTypeDeclaration = {
   name: string;
@@ -23,6 +23,10 @@ export const knownPageTypes = [
   {
     name: 'SECTION',
     match: matchSectionPage,
+  },
+  {
+    name: 'REFERENCE',
+    match: matchReferencePage,
   },
   {
     name: 'MONTHLY_REPORTS',

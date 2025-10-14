@@ -228,7 +228,7 @@ const userOptionsField: Field<UserOptions> = {
         },
       },
     },
-    subMaterialSizeAdjustment: {
+    referenceSizeAdjustment: {
       label: '補助テキストのサイズ調整',
       children: {
         enabled: {
@@ -242,7 +242,7 @@ const userOptionsField: Field<UserOptions> = {
           label: '要素取得タイムアウト',
           description: '補助テキストを検索する最長時間。単位は [ms]。',
         },
-        subMaterialSelectors: {
+        referenceSelectors: {
           label: '[Advanced] 補助テキストセレクター',
           description: '補助テキストへのCSSセレクター。空に設定すると既定値を使用。',
         },

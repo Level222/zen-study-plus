@@ -66,3 +66,18 @@ export const fromMutationObserver = (
     observer.disconnect();
   };
 });
+
+export const fromResizeObserver = (
+  target: Element,
+  options?: ResizeObserverOptions,
+): Observable<ResizeObserverEntry[]> => new Observable((subscriber) => {
+  const observer = new ResizeObserver((entries) => {
+    subscriber.next(entries);
+  });
+
+  observer.observe(target, options);
+
+  return () => {
+    observer.disconnect();
+  };
+});

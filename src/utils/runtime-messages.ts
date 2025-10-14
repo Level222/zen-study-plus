@@ -31,10 +31,26 @@ export const KeyboardShortcutsMessage = z.object({
 
 export type KeyboardShortcutsMessage = z.infer<typeof KeyboardShortcutsMessage>;
 
+export const SendBackResizeReferenceMessage = z.object({
+  type: z.literal('SEND_BACK_RESIZE_REFERENCE'),
+  sendBackHeight: z.number(),
+});
+
+export type SendBackResizeReferenceMessage = z.infer<typeof SendBackResizeReferenceMessage>;
+
+export const ResizeReferenceMessage = z.object({
+  type: z.literal('RESIZE_REFERENCE'),
+  height: z.number(),
+});
+
+export type ResizeReferenceMessage = z.infer<typeof ResizeReferenceMessage>;
+
 export const RuntimeMessage = z.union([
   ChangeHistoryStateMessage,
   SendBackKeyboardShortcutsMessage,
   KeyboardShortcutsMessage,
+  SendBackResizeReferenceMessage,
+  ResizeReferenceMessage,
 ]);
 
 export type RuntimeMessage = z.infer<typeof RuntimeMessage>;

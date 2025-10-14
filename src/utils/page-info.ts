@@ -160,6 +160,34 @@ export const matchSectionPage: PageMatcher<SectionPageInfo> = (url) => {
   }
 };
 
+export type ReferencePageInfo = {
+  courseId: number;
+  chapterId: number;
+  resourceId: number;
+  referenceId: number;
+};
+
+export const matchReferencePage: PageMatcher<ReferencePageInfo> = (url) => {
+  const matchResult = url.pathname.match(/^\/contents\/courses\/(\d+)\/chapters\/(\d+)\/movies\/(\d+)\/references\/(\d+)\/?$/);
+
+  if (!matchResult) {
+    return { match: false };
+  }
+
+  const [, courseIdStr, chapterIdStr, resourceIdStr, referenceIdStr] = matchResult;
+
+  try {
+    const [courseId, chapterId, resourceId, referenceId] = parseToPositiveIntegers([courseIdStr, chapterIdStr, resourceIdStr, referenceIdStr]);
+
+    return {
+      match: true,
+      pageInfo: { courseId, chapterId, resourceId, referenceId },
+    };
+  } catch {
+    return { match: false };
+  }
+};
+
 export type MonthlyReportsPageInfo = {
   year: number;
   month: number;
