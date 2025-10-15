@@ -6,10 +6,9 @@ import type { SyncOptions } from './sync-options';
  * 全オプションの既定値
  */
 export const defaultSyncOptions: SyncOptions = {
-  version: 9,
+  version: 10,
   user: {
     movieTime: {
-      timeout: 5000,
       pages: {
         course: {
           enabled: true,
@@ -30,7 +29,6 @@ export const defaultSyncOptions: SyncOptions = {
     },
     wordCount: {
       enabled: true,
-      timeout: 5000,
     },
     keyboardShortcuts: {
       shortcuts: {
@@ -72,7 +70,6 @@ export const defaultSyncOptions: SyncOptions = {
       enabled: true,
       additionalHeight: 0,
       maxHeight: 20000,
-      timeout: 5000,
     },
     disableStickyMovie: {
       enabled: true,
@@ -94,7 +91,6 @@ export const fallbackSyncOptions = {
         },
         chapter: {
           parentSelectors: ':has(> [aria-label$="教材リスト"]) > div:nth-child(1):not(:has([aria-label="教材フィルタ"]))',
-          expanderSelectors: '[aria-label="教材モーダル"] :is([aria-label="縮小する"], [aria-label="拡大する"])',
         },
         myCourse: {
           anchorSelectors: '[aria-label="コース一覧"] a:has(h4)',

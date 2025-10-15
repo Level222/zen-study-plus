@@ -3,6 +3,7 @@ import type { PartialDeep } from 'type-fest';
 import type { fallbackSyncOptions } from './default-options';
 import { z } from 'zod';
 import { defaultSyncOptions } from './default-options';
+import { omit } from './helpers';
 
 // オプションの変更方法
 // 1. 一つ前のバージョンのオプションを `extend` して変更を加える
@@ -181,6 +182,31 @@ export const SyncOptionsV9 = SyncOptionsV8.extend({
 
 export type SyncOptionsV9 = z.infer<typeof SyncOptionsV9>;
 
+export const SyncOptionsV10 = SyncOptionsV9.extend({
+  version: z.literal(10),
+  user: SyncOptionsV9.shape.user.extend({
+    movieTime: SyncOptionsV9.shape.user.shape.movieTime
+      .extend({
+        pages: SyncOptionsV9.shape.user.shape.movieTime.shape.pages.extend({
+          chapter: SyncOptionsV9.shape.user.shape.movieTime.shape.pages.shape.chapter.omit({
+            expanderSelectors: true,
+          }),
+        }),
+      })
+      .omit({
+        timeout: true,
+      }),
+    wordCount: SyncOptionsV9.shape.user.shape.wordCount.omit({
+      timeout: true,
+    }),
+    referenceSizeAdjustment: SyncOptionsV9.shape.user.shape.referenceSizeAdjustment.omit({
+      timeout: true,
+    }),
+  }),
+});
+
+export type SyncOptionsV10 = z.infer<typeof SyncOptionsV10>;
+
 export const HistoricalSyncOptions = z.union([
   SyncOptionsV1,
   SyncOptionsV2,
@@ -191,12 +217,13 @@ export const HistoricalSyncOptions = z.union([
   SyncOptionsV7,
   SyncOptionsV8,
   SyncOptionsV9,
+  SyncOptionsV10,
 ]);
 
 export type HistoricalSyncOptions = z.infer<typeof HistoricalSyncOptions>;
 
-export const SyncOptions = SyncOptionsV9;
-export type SyncOptions = SyncOptionsV9;
+export const SyncOptions = SyncOptionsV10;
+export type SyncOptions = SyncOptionsV10;
 
 export const UserOptions = SyncOptions.shape.user;
 export type UserOptions = z.infer<typeof UserOptions>;
@@ -209,7 +236,8 @@ export const migrateHistoricalSyncOptions = (options: HistoricalSyncOptions): Sy
         version: 2,
         user: {
           ...options.user,
-          wordCount: { ...defaultSyncOptions.user.wordCount },
+          // timeout option is deprecated
+          wordCount: { ...defaultSyncOptions.user.wordCount, timeout: 0 },
         },
       });
     case 2:
@@ -260,7 +288,8 @@ export const migrateHistoricalSyncOptions = (options: HistoricalSyncOptions): Sy
         version: 6,
         user: {
           ...options.user,
-          subMaterialSizeAdjustment: { ...defaultSyncOptions.user.referenceSizeAdjustment },
+          // timeout option is deprecated
+          subMaterialSizeAdjustment: { ...defaultSyncOptions.user.referenceSizeAdjustment, timeout: 0 },
         },
       });
     case 6:
@@ -284,24 +313,37 @@ export const migrateHistoricalSyncOptions = (options: HistoricalSyncOptions): Sy
           },
         },
       });
-    case 8: {
-      const { subMaterialSizeAdjustment, ...userOptions } = options.user;
-      const { subMaterialSelectors, ...referenceSizeAdjustment } = subMaterialSizeAdjustment;
-
+    case 8:
       return migrateHistoricalSyncOptions({
         ...options,
         version: 9,
         user: {
-          ...userOptions,
+          ...omit(options.user, ['subMaterialSizeAdjustment']),
           referenceSizeAdjustment: {
-            ...referenceSizeAdjustment,
-            referenceSelectors: subMaterialSelectors,
+            ...omit(options.user.subMaterialSizeAdjustment, ['subMaterialSelectors']),
+            referenceSelectors: options.user.subMaterialSizeAdjustment.subMaterialSelectors,
             maxHeight: defaultSyncOptions.user.referenceSizeAdjustment.maxHeight,
           },
         },
       });
-    }
     case 9:
+      return migrateHistoricalSyncOptions({
+        ...options,
+        version: 10,
+        user: {
+          ...options.user,
+          movieTime: {
+            ...omit(options.user.movieTime, ['timeout']),
+            pages: {
+              ...options.user.movieTime.pages,
+              chapter: omit(options.user.movieTime.pages.chapter, ['expanderSelectors']),
+            },
+          },
+          wordCount: omit(options.user.wordCount, ['timeout']),
+          referenceSizeAdjustment: omit(options.user.referenceSizeAdjustment, ['timeout']),
+        },
+      });
+    case 10:
       return options;
   }
 };

@@ -1,10 +1,10 @@
 import type { RuntimeMessage } from '../../utils/runtime-messages';
 import type { ContentFeature } from '../pages';
-import { combineLatest, distinctUntilChanged, filter, map, startWith, takeUntil, takeWhile, timer } from 'rxjs';
+import { combineLatest, filter, map, startWith, takeUntil, takeWhile } from 'rxjs';
 import { cleanable, Cleanup } from '../../utils/cleanup';
-import { fromResizeObserver, intervalQuerySelector } from '../../utils/rxjs-helpers';
+import { fromResizeObserver } from '../../utils/rxjs-helpers';
 
-const referenceSizeAdjustment: ContentFeature = ({ pageContent$, syncOptions$, runtimeMessage$ }) => {
+const referenceSizeAdjustment: ContentFeature = ({ pageContent$, syncOptions$, runtimeMessage$, mutationSelector }) => {
   combineLatest({
     pageContent: pageContent$,
     syncOptions: syncOptions$,
@@ -44,17 +44,18 @@ const referenceSizeAdjustment: ContentFeature = ({ pageContent$, syncOptions$, r
             return;
           }
 
-          intervalQuerySelector<HTMLIFrameElement>(
+          mutationSelector.selector<HTMLIFrameElement>(
             referenceSizeAdjustmentOptions.referenceSelectors,
           ).pipe(
-            distinctUntilChanged(),
-            filter((reference) => !!reference),
-            takeUntil(timer(referenceSizeAdjustmentOptions.timeout)),
             takeUntil(cleanup.executed$),
             cleanable(),
           ).subscribe(({ value: reference, cleanup: cleanupReference, previousCleanup: previousCleanupReference }) => {
             previousCleanupReference.execute();
             cleanup.add(cleanupReference);
+
+            if (!reference) {
+              return;
+            }
 
             cleanupReference.add(Cleanup.fromCurrentProperties(reference.style, ['height']));
 

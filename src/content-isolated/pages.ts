@@ -3,6 +3,7 @@ import type { Cleanup } from '../utils/cleanup';
 import type { DispatchMessageEvent } from '../utils/events';
 import type { PageMatcher } from '../utils/page-info';
 import type { RuntimeMessage } from '../utils/runtime-messages';
+import type { MutationSelector } from '../utils/rxjs-helpers';
 import type { SyncOptionsWithFallback } from '../utils/sync-options';
 import { matchChapterPage, matchCoursePage, matchMonthlyReportsPage, matchMyCoursesPage, matchReferencePage, matchSectionPage } from '../utils/page-info';
 
@@ -64,6 +65,7 @@ export type ContentFeatureInit = {
   syncOptions$: Observable<SyncOptionsWithFallback>;
   runtimeMessage$: Observable<RuntimeMessage>;
   dispatchMessageEvent: DispatchMessageEvent;
+  mutationSelector: MutationSelector;
 };
 
 export type ContentFeature = (init: ContentFeatureInit) => void;

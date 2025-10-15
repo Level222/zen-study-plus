@@ -77,10 +77,6 @@ const userOptionsField: Field<UserOptions> = {
     movieTime: {
       label: '動画合計時間表示',
       children: {
-        timeout: {
-          label: '要素取得タイムアウト',
-          description: '動画時間表示の親要素を検索する最長時間。単位は [ms]。',
-        },
         pages: {
           label: 'ページ',
           children: {
@@ -97,10 +93,6 @@ const userOptionsField: Field<UserOptions> = {
                 parentSelectors: {
                   label: '[Advanced] 親要素セレクター',
                   description: '動画時間表示の親要素へのCSSセレクター。空に設定すると既定値を使用。',
-                },
-                expanderSelectors: {
-                  label: '[Advanced] エキスパンダーセレクター',
-                  description: '教材モーダルを開く/閉じるボタンへのCSSセレクター。空に設定すると既定値を使用。',
                 },
               },
             },
@@ -135,10 +127,6 @@ const userOptionsField: Field<UserOptions> = {
       children: {
         enabled: {
           label: '有効',
-        },
-        timeout: {
-          label: '要素取得タイムアウト',
-          description: '単語数表示の親要素を検索する最長時間。単位は [ms]。',
         },
         fieldSelectors: {
           label: '[Advanced] フィールドセレクター',
@@ -241,10 +229,6 @@ const userOptionsField: Field<UserOptions> = {
         maxHeight: {
           label: '最大高さ',
           description: '補助テキストの最大高さ。無限ループの回避に使われる。単位は [px]。',
-        },
-        timeout: {
-          label: '要素取得タイムアウト',
-          description: '補助テキストを検索する最長時間。単位は [ms]。',
         },
         referenceSelectors: {
           label: '[Advanced] 補助テキストセレクター',
