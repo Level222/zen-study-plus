@@ -240,21 +240,19 @@ export type CourseOnCalculationProps = {
   on_calculation: boolean;
 };
 
-export type CourseNSchoolProgressProps = {
-  progress:
-    & StatusProps
-    & ChapterProgressProps
-    & CourseOnCalculationProps;
-};
+export type CourseNSchoolProgress =
+  & StatusProps
+  & ChapterProgressProps
+  & CourseOnCalculationProps;
 
 export type CourseNSchoolChapter =
   & BaseContentProps
   & OutlineProps
   & StatusProps
-  & CourseNSchoolProgressProps
   & {
     resource_type: 'chapter';
     label?: string;
+    progress: CourseNSchoolProgress;
   };
 
 export type CourseNSchool =
@@ -265,12 +263,12 @@ export type CourseNSchool =
   & {
     type: 'n_school';
     progress:
-      & CourseNSchoolProgressProps
+      & CourseNSchoolProgress
       & {
-        'total_chapters': 12;
-        'passed_chapters': 9;
-        'total_materials': 200;
-        'passed_materials': 168;
+        total_chapters: number;
+        passed_chapters: number;
+        total_materials: number;
+        passed_materials: number;
       };
     chapters: CourseNSchoolChapter[];
   };
@@ -314,14 +312,9 @@ export type CourseAdvanced =
   & CourseAdvancedProgressProps
   & CourseSubjectCategoryProps
   & {
-    progress:
-      & ProgressProps
-      & {
-        on_calculation: true;
-      };
     short_test: {
-      total_short_test: 5;
-      total_passed_short_test: 0;
+      total_short_test: number;
+      total_passed_short_test: number;
     };
     type: 'advanced';
     chapters: (
