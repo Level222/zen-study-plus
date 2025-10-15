@@ -6,6 +6,7 @@ import { EVENT_TYPE_PREFIX } from '../constants';
 import { fallbackSyncOptions } from '../utils/default-options';
 import { createMessageEventDispatcher, INIT_EVENT_TYPE, LOAD_MAIN_EVENT_TYPE } from '../utils/events';
 import { RuntimeMessage } from '../utils/runtime-messages';
+import { MutationSelector } from '../utils/rxjs-helpers';
 import { getSyncStorage } from '../utils/storage';
 import { SyncOptions } from '../utils/sync-options';
 import disableMathJaxFocus from './disable-math-jax-focus';
@@ -95,6 +96,10 @@ const pageContent$ = runtimeMessage$.pipe(
   shareReplay(1),
 );
 
+const mutationSelector = new MutationSelector(document.documentElement, {
+  throttleDuration: 100,
+});
+
 for (const feature of features) {
-  feature({ pageContent$, syncOptions$, runtimeMessage$, dispatchMessageEvent });
+  feature({ pageContent$, syncOptions$, runtimeMessage$, dispatchMessageEvent, mutationSelector });
 }

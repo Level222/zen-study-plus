@@ -1,9 +1,8 @@
 import type { ContentFeature } from '../pages';
-import { combineLatest, filter, fromEvent, startWith, takeUntil, timer } from 'rxjs';
+import { combineLatest, filter, fromEvent, startWith, takeUntil } from 'rxjs';
 import { CLASS_NAME_PREFIX } from '../../constants';
 import { cleanable, Cleanup, modifyProperties } from '../../utils/cleanup';
 import { el } from '../../utils/helpers';
-import { intervalQuerySelectorAll } from '../../utils/rxjs-helpers';
 
 const segmenter = new Intl.Segmenter(undefined, { granularity: 'word' });
 
@@ -15,7 +14,7 @@ const countWords = (text: string): number => {
 
 const WORD_COUNT_CLASS_NAME = `${CLASS_NAME_PREFIX}_word-count`;
 
-const wordCount: ContentFeature = ({ pageContent$, syncOptions$ }) => {
+const wordCount: ContentFeature = ({ pageContent$, syncOptions$, mutationSelector }) => {
   combineLatest({
     pageContent: pageContent$,
     syncOptions: syncOptions$,
@@ -42,19 +41,18 @@ const wordCount: ContentFeature = ({ pageContent$, syncOptions$ }) => {
       return;
     }
 
-    intervalQuerySelectorAll<HTMLInputElement | HTMLTextAreaElement>(
+    mutationSelector.selectorAll<HTMLInputElement | HTMLTextAreaElement>(
       wordCountOptions.fieldSelectors,
     ).pipe(
-      filter((fieldNodeList) => fieldNodeList.length > 0),
-      takeUntil(timer(wordCountOptions.timeout)),
+      filter((fields) => fields.length > 0),
       takeUntil(cleanup.executed$),
-    ).subscribe((fieldNodeList) => {
-      const fields = [...fieldNodeList].flatMap((field) => {
+    ).subscribe((fields) => {
+      const fieldsWithCounter = fields.flatMap((field) => {
         const counter = field.parentElement?.querySelector<HTMLDivElement>(wordCountOptions.counterSelectors);
         return counter ? [{ field, counter }] : [];
       });
 
-      for (const { field, counter } of fields) {
+      for (const { field, counter } of fieldsWithCounter) {
         if ([...counter.children].some((element) => element.classList.contains(WORD_COUNT_CLASS_NAME))) {
           continue;
         }

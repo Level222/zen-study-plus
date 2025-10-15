@@ -18,6 +18,20 @@ export const parseToPositiveIntegers = <T extends string[]>(
   }) as { [K in keyof T]: number };
 };
 
+export const isSameArray = <T extends readonly any[]>(arr1: T, arr2: T): boolean => {
+  return arr1.length === arr2.length && arr1.every((value, i) => value === arr2[i]);
+};
+
+export const omit = <T extends Record<string, unknown>, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> => {
+  const newObj = { ...obj };
+
+  for (const key of keys) {
+    delete newObj[key];
+  }
+
+  return newObj;
+};
+
 export const el = <T extends keyof HTMLElementTagNameMap>(
   tagName: T,
   properties: Partial<HTMLElementTagNameMap[T]> = {},
