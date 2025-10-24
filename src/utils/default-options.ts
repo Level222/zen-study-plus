@@ -52,6 +52,12 @@ export const defaultSyncOptions: SyncOptions = {
         pictureInPicture: {
           patterns: 'P',
         },
+        theaterMode: {
+          patterns: 'T',
+        },
+        expandSection: {
+          patterns: 'Ctrl+B',
+        },
         previousSection: {
           patterns: 'Ctrl+Shift+ArrowUp',
         },
@@ -113,9 +119,11 @@ export const fallbackSyncOptions = {
     },
     keyboardShortcuts: {
       defaultShortcutsToDisable: {
-        patterns: 'Any+F,Any+J,Any+K,Any+L,Any+M',
+        patterns: 'Any+F,Any+J,Any+K,Any+L,Any+M,Any+T',
       },
       ignoreTargetSelectors: 'input, textarea',
+      theaterModeButtonSelectors: 'a:has([type^=theater-mode])',
+      expandButtonSelectors: '[aria-label="教材モーダル"] :where([aria-label="縮小する"], [aria-label="拡大する"])',
       sectionVideoSelectors: '#video-player',
       sectionListItemSelectors: ':is([aria-label$="教材リスト"], [aria-label="レポートリスト"]) > li > :nth-child(1) > div:nth-child(1)',
     },
