@@ -178,6 +178,14 @@ const userOptionsField: Field<UserOptions> = {
               label: 'ピクチャー・イン・ピクチャー',
               children: keyboardShortcutOptionsFieldChildren,
             },
+            theaterMode: {
+              label: 'シアターモード',
+              children: keyboardShortcutOptionsFieldChildren,
+            },
+            expandSection: {
+              label: 'セクションを拡大',
+              children: keyboardShortcutOptionsFieldChildren,
+            },
             previousSection: {
               label: '前のセクション',
               children: keyboardShortcutOptionsFieldChildren,
@@ -204,6 +212,14 @@ const userOptionsField: Field<UserOptions> = {
         sectionVideoSelectors: {
           label: '[Advanced] セクション動画セレクター',
           description: 'セクションページ内の動画要素へのCSSセレクター。空に設定すると既定値を使用。',
+        },
+        theaterModeButtonSelectors: {
+          label: '[Advanced] シアターモードボタンセレクター',
+          description: 'セクションページ内のシアターモード切り替えボタンへのCSSセレクター。空に設定すると既定値を使用。',
+        },
+        expandButtonSelectors: {
+          label: '[Advanced] 拡大ボタンセレクター',
+          description: 'チャプターページ内のセクション拡大・縮小ボタンへのCSSセレクター。空に設定すると既定値を使用。',
         },
         sectionListItemSelectors: {
           label: '[Advanced] セクションリストアイテムセレクター',

@@ -150,6 +150,34 @@ const shortcuts: {
   previousSection: ({ keyboardShortcutsOptions }) => {
     clickRelativeSectionListItem(-1, keyboardShortcutsOptions);
   },
+  theaterMode: ({ pageContent, keyboardShortcutsOptions }) => {
+    const sectionPageType = pageContent.types.find((pageType) => pageType.name === 'SECTION');
+
+    if (
+      !sectionPageType
+      || sectionPageType.pageInfo.type !== 'CHAPTER_RESOURCE'
+      || sectionPageType.pageInfo.resourceType !== 'movies'
+    ) {
+      return;
+    }
+
+    const theaterModeButton = document.querySelector(keyboardShortcutsOptions.theaterModeButtonSelectors);
+
+    if (theaterModeButton instanceof HTMLElement) {
+      theaterModeButton.click();
+    }
+  },
+  expandSection: ({ pageContent, keyboardShortcutsOptions }) => {
+    if (!pageContent.types.find((pageType) => pageType.name === 'CHAPTER')) {
+      return;
+    }
+
+    const expandButton = document.querySelector(keyboardShortcutsOptions.expandButtonSelectors);
+
+    if (expandButton instanceof HTMLElement) {
+      expandButton.click();
+    }
+  },
   nextSection: ({ keyboardShortcutsOptions }) => {
     clickRelativeSectionListItem(1, keyboardShortcutsOptions);
   },

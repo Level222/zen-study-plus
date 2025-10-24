@@ -135,8 +135,14 @@ export const SyncOptionsV6 = SyncOptionsV5.extend({
         timeout: true,
       }),
       keyboardShortcuts: SyncOptionsV5.shape.user.shape.keyboardShortcuts.extend({
+        shortcuts: SyncOptionsV5.shape.user.shape.keyboardShortcuts.shape.shortcuts.extend({
+          theaterMode: KeyboardShortcutItemOptions,
+          expandSection: KeyboardShortcutItemOptions,
+        }),
         videoShortcutTimeout: z.number(),
         sectionVideoSelectors: z.string().optional(),
+        theaterModeButtonSelectors: z.string().optional(),
+        expandButtonSelectors: z.string().optional(),
         sectionListItemSelectors: z.string().optional(),
       }),
       referenceSizeAdjustment: z.object({
@@ -208,6 +214,11 @@ export const migrateHistoricalSyncOptions = (options: HistoricalSyncOptions): Sy
           wordCount: omit(options.user.wordCount, ['timeout']),
           keyboardShortcuts: {
             ...options.user.keyboardShortcuts,
+            shortcuts: {
+              ...options.user.keyboardShortcuts.shortcuts,
+              theaterMode: defaultSyncOptions.user.keyboardShortcuts.shortcuts.theaterMode,
+              expandSection: defaultSyncOptions.user.keyboardShortcuts.shortcuts.expandSection,
+            },
             videoShortcutTimeout: defaultSyncOptions.user.keyboardShortcuts.videoShortcutTimeout,
             sectionVideoSelectors: options.user.pageComponents.sectionVideoSelectors,
             sectionListItemSelectors: options.user.pageComponents.chapterSectionListItemsSelectors,
