@@ -15,39 +15,6 @@ export type ShortcutExecution<T extends KeyboardShortcutItemOptions = KeyboardSh
 
 export type Shortcut<T extends ShortcutExecution> = (options: T) => void;
 
-const clickRelativeSectionListItem = (
-  relativePosition: number,
-  keyboardShortcutsOptions: KeyboardShortcutsOptions,
-) => {
-  const sectionListItems = [...document.querySelectorAll<HTMLDivElement>(
-    keyboardShortcutsOptions.sectionListItemSelectors,
-  )];
-
-  if (!sectionListItems.length) {
-    return;
-  }
-
-  let targetItemIndex: number | undefined;
-
-  const sectionListItemStyles = sectionListItems.map((item) => getComputedStyle(item));
-  const currentItemIndex = sectionListItemStyles.findIndex((style) => style.boxShadow !== 'none');
-
-  if (currentItemIndex === -1) {
-    if (relativePosition >= 0) {
-      targetItemIndex = 0;
-    } else {
-      const firstDisabledItemIndex = sectionListItemStyles.findIndex((style) => style.pointerEvents === 'none');
-      targetItemIndex = firstDisabledItemIndex === -1 ? sectionListItems.length - 1 : firstDisabledItemIndex - 1;
-    }
-  } else {
-    targetItemIndex = Math.max(Math.min(currentItemIndex + relativePosition, sectionListItems.length - 1), 0);
-  }
-
-  if (targetItemIndex !== currentItemIndex) {
-    sectionListItems[targetItemIndex].click();
-  }
-};
-
 const getVideoFromDocument = (
   pageContent: PageContent,
   keyboardShortcutsOptions: KeyboardShortcutsOptions,
@@ -82,6 +49,44 @@ const getVideoFromDocument = (
   }
 
   return Promise.resolve(video);
+};
+
+const clickRelativeSectionListItem = (
+  relativePosition: number,
+  pageContent: PageContent,
+  keyboardShortcutsOptions: KeyboardShortcutsOptions,
+) => {
+  if (!pageContent.types.find((pageType) => pageType.name === 'CHAPTER')) {
+    return;
+  }
+
+  const sectionListItems = [...document.querySelectorAll<HTMLDivElement>(
+    keyboardShortcutsOptions.sectionListItemSelectors,
+  )];
+
+  if (!sectionListItems.length) {
+    return;
+  }
+
+  let targetItemIndex: number | undefined;
+
+  const sectionListItemStyles = sectionListItems.map((item) => getComputedStyle(item));
+  const currentItemIndex = sectionListItemStyles.findIndex((style) => style.boxShadow !== 'none');
+
+  if (currentItemIndex === -1) {
+    if (relativePosition >= 0) {
+      targetItemIndex = 0;
+    } else {
+      const firstDisabledItemIndex = sectionListItemStyles.findIndex((style) => style.pointerEvents === 'none');
+      targetItemIndex = firstDisabledItemIndex === -1 ? sectionListItems.length - 1 : firstDisabledItemIndex - 1;
+    }
+  } else {
+    targetItemIndex = Math.max(Math.min(currentItemIndex + relativePosition, sectionListItems.length - 1), 0);
+  }
+
+  if (targetItemIndex !== currentItemIndex) {
+    sectionListItems[targetItemIndex].click();
+  }
 };
 
 const shortcuts: {
@@ -147,9 +152,6 @@ const shortcuts: {
       video.requestPictureInPicture();
     }
   },
-  previousSection: ({ keyboardShortcutsOptions }) => {
-    clickRelativeSectionListItem(-1, keyboardShortcutsOptions);
-  },
   theaterMode: ({ pageContent, keyboardShortcutsOptions }) => {
     const sectionPageType = pageContent.types.find((pageType) => pageType.name === 'SECTION');
 
@@ -178,8 +180,11 @@ const shortcuts: {
       expandButton.click();
     }
   },
-  nextSection: ({ keyboardShortcutsOptions }) => {
-    clickRelativeSectionListItem(1, keyboardShortcutsOptions);
+  previousSection: ({ pageContent, keyboardShortcutsOptions }) => {
+    clickRelativeSectionListItem(-1, pageContent, keyboardShortcutsOptions);
+  },
+  nextSection: ({ pageContent, keyboardShortcutsOptions }) => {
+    clickRelativeSectionListItem(1, pageContent, keyboardShortcutsOptions);
   },
 };
 
