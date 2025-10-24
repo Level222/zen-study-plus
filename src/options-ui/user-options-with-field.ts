@@ -1,6 +1,6 @@
 import type { FieldTypes } from '@autoform/mui';
 import type { SuperRefinement } from 'zod';
-import type { KeyboardShortcutPatternOptions, MovieTimeListPageOptions, MovieTimeListPageOptionsWithSummary, MovieTimePageOptions } from '../utils/sync-options';
+import type { KeyboardShortcutItemOptions, MovieTimeListPageOptions, MovieTimeListPageOptionsWithSummary, MovieTimePageOptions } from '../utils/sync-options';
 import { buildZodFieldConfig } from '@autoform/react';
 import { z } from 'zod';
 import { parsePatterns } from '../utils/shortcut-keys';
@@ -53,7 +53,7 @@ const createMovieTimeListPageOptionsWithSummaryFieldChildren = (
   },
 });
 
-const keyboardShortcutOptionsFieldChildren: FieldChildren<KeyboardShortcutPatternOptions> = {
+const keyboardShortcutOptionsFieldChildren: FieldChildren<KeyboardShortcutItemOptions> = {
   patterns: {
     label: 'キーパターン',
     description: '設定方法は下記用語解説を参照。空に設定すると無効になる。',

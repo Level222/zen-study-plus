@@ -1,6 +1,6 @@
 import type { KeyboardEventLike, RuntimeMessage } from '../../utils/runtime-messages';
 import type { ParsedPattern } from '../../utils/shortcut-keys';
-import type { KeyboardShortcutPatternOptions, SyncOptionsWithFallback } from '../../utils/sync-options';
+import type { KeyboardShortcutItemOptions, SyncOptionsWithFallback } from '../../utils/sync-options';
 import type { ContentFeature } from '../pages';
 import type { Shortcut, ShortcutExecution } from './shortcuts';
 import { filter, fromEvent, map, withLatestFrom } from 'rxjs';
@@ -9,7 +9,7 @@ import shortcuts from './shortcuts';
 
 type ShortcutsOptions = SyncOptionsWithFallback['user']['keyboardShortcuts']['shortcuts'];
 
-type ShortcutWithExecutionProps<T extends KeyboardShortcutPatternOptions> = {
+type ShortcutWithExecutionProps<T extends KeyboardShortcutItemOptions> = {
   shortcut: Shortcut<ShortcutExecution<T>>;
   parsedPatterns: ParsedPattern[];
   options: T;

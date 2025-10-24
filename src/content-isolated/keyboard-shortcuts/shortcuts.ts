@@ -1,12 +1,12 @@
 import type { ParsedPattern } from '../../utils/shortcut-keys';
-import type { KeyboardShortcutPatternOptions, SyncOptionsWithFallback } from '../../utils/sync-options';
+import type { KeyboardShortcutItemOptions, SyncOptionsWithFallback } from '../../utils/sync-options';
 import type { PageContent } from '../pages';
 import { firstValueFrom, fromEvent, map, take, takeUntil, timer } from 'rxjs';
 
 type KeyboardShortcutsOptions = SyncOptionsWithFallback['user']['keyboardShortcuts'];
 type ShortcutsOptions = KeyboardShortcutsOptions['shortcuts'];
 
-export type ShortcutExecution<T extends KeyboardShortcutPatternOptions = KeyboardShortcutPatternOptions> = {
+export type ShortcutExecution<T extends KeyboardShortcutItemOptions = KeyboardShortcutItemOptions> = {
   options: T;
   parsedPatterns: ParsedPattern[];
   pageContent: PageContent;

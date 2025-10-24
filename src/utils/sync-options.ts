@@ -36,11 +36,11 @@ export type MovieTimeListPageOptionsWithSummary = z.infer<typeof MovieTimeListPa
 
 export type MovieTimeListPageOptionsWithSummaryRequired = Required<MovieTimeListPageOptionsWithSummary>;
 
-export const KeyboardShortcutPatternOptions = z.object({
+export const KeyboardShortcutItemOptions = z.object({
   patterns: z.string().optional(),
 });
 
-export type KeyboardShortcutPatternOptions = z.infer<typeof KeyboardShortcutPatternOptions>;
+export type KeyboardShortcutItemOptions = z.infer<typeof KeyboardShortcutItemOptions>;
 
 /**
  * Release in v1.0.0
@@ -69,20 +69,20 @@ export const SyncOptionsV4 = z.object({
     }),
     keyboardShortcuts: z.object({
       shortcuts: z.object({
-        playOrPause: KeyboardShortcutPatternOptions,
-        seekBackward: KeyboardShortcutPatternOptions.extend({
+        playOrPause: KeyboardShortcutItemOptions,
+        seekBackward: KeyboardShortcutItemOptions.extend({
           seconds: z.number(),
         }),
-        seekForward: KeyboardShortcutPatternOptions.extend({
+        seekForward: KeyboardShortcutItemOptions.extend({
           seconds: z.number(),
         }),
-        mute: KeyboardShortcutPatternOptions,
-        fullscreen: KeyboardShortcutPatternOptions,
-        pictureInPicture: KeyboardShortcutPatternOptions,
-        previousSection: KeyboardShortcutPatternOptions,
-        nextSection: KeyboardShortcutPatternOptions,
+        mute: KeyboardShortcutItemOptions,
+        fullscreen: KeyboardShortcutItemOptions,
+        pictureInPicture: KeyboardShortcutItemOptions,
+        previousSection: KeyboardShortcutItemOptions,
+        nextSection: KeyboardShortcutItemOptions,
       }),
-      defaultShortcutsToDisable: KeyboardShortcutPatternOptions,
+      defaultShortcutsToDisable: KeyboardShortcutItemOptions,
       ignoreTargetSelectors: z.string().optional(),
     }),
     pageComponents: z.object({
