@@ -1,6 +1,6 @@
 import type { FieldTypes } from '@autoform/mui';
 import type { SuperRefinement } from 'zod';
-import type { KeyboardShortcutOptions, MovieTimeListPageOptions, MovieTimeListPageOptionsWithSummary, MovieTimePageOptions } from '../utils/sync-options';
+import type { KeyboardShortcutItemOptions, MovieTimeListPageOptions, MovieTimeListPageOptionsWithSummary, MovieTimePageOptions } from '../utils/sync-options';
 import { buildZodFieldConfig } from '@autoform/react';
 import { z } from 'zod';
 import { parsePatterns } from '../utils/shortcut-keys';
@@ -49,11 +49,11 @@ const createMovieTimeListPageOptionsWithSummaryFieldChildren = (
   ...createMovieTimeListPageOptionsFieldChildren(options),
   summaryParentSelectors: {
     label: '[Advanced] 合計親要素セレクター',
-    description: '取得した全チャプター合計動画時間表示の親要素。空に設定すると既定値を使用。',
+    description: '取得した全チャプター合計動画時間表示の親要素へのCSSセレクター。空に設定すると既定値を使用。',
   },
 });
 
-const keyboardShortcutOptionsFieldChildren: FieldChildren<KeyboardShortcutOptions> = {
+const keyboardShortcutOptionsFieldChildren: FieldChildren<KeyboardShortcutItemOptions> = {
   patterns: {
     label: 'キーパターン',
     description: '設定方法は下記用語解説を参照。空に設定すると無効になる。',
@@ -201,6 +201,14 @@ const userOptionsField: Field<UserOptions> = {
           label: '動画ショートカットタイムアウト',
           description: '動画関連のショートカットで、動画がロードされるまでの最長待機時間。単位は [ms]。',
         },
+        sectionVideoSelectors: {
+          label: '[Advanced] セクション動画セレクター',
+          description: 'セクションページ内の動画要素へのCSSセレクター。空に設定すると既定値を使用。',
+        },
+        sectionListItemSelectors: {
+          label: '[Advanced] セクションリストアイテムセレクター',
+          description: 'チャプターページ内のセクションリストの各アイテムへのCSSセレクター。空に設定すると既定値を使用。',
+        },
       },
     },
     disableMathJaxFocus: {
@@ -232,7 +240,7 @@ const userOptionsField: Field<UserOptions> = {
         },
         referenceSelectors: {
           label: '[Advanced] 補助テキストセレクター',
-          description: '補助テキストへのCSSセレクター。空に設定すると既定値を使用。',
+          description: 'セクションページ内の補助テキストへのCSSセレクター。空に設定すると既定値を使用。',
         },
       },
     },
@@ -241,19 +249,6 @@ const userOptionsField: Field<UserOptions> = {
       children: {
         enabled: {
           label: '有効',
-        },
-      },
-    },
-    pageComponents: {
-      label: 'ページ内部品',
-      children: {
-        sectionVideoSelectors: {
-          label: '[Advanced] セクション動画セレクター',
-          description: 'セクションページ内の動画要素へのCSSセレクター。空に設定すると既定値を使用。',
-        },
-        chapterSectionListItemsSelectors: {
-          label: '[Advanced] チャプターセクションリストアイテムセレクター',
-          description: 'チャプターページ内のセクションリストの各アイテムへのCSSセレクター。空に設定すると既定値を使用。',
         },
       },
     },
