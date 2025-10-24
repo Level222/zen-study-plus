@@ -221,6 +221,7 @@ export const migrateHistoricalSyncOptions = (options: HistoricalSyncOptions): Sy
             },
             videoShortcutTimeout: defaultSyncOptions.user.keyboardShortcuts.videoShortcutTimeout,
             sectionVideoSelectors: options.user.pageComponents.sectionVideoSelectors,
+            expandButtonSelectors: options.user.movieTime.pages.chapter.expanderSelectors,
             sectionListItemSelectors: options.user.pageComponents.chapterSectionListItemsSelectors,
           },
           referenceSizeAdjustment: defaultSyncOptions.user.referenceSizeAdjustment,
