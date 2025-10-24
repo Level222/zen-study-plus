@@ -1,5 +1,8 @@
 # ZEN Study +
 
+[![Chrome Web Store Version](https://img.shields.io/chrome-web-store/v/bbnjgcjpnialjodpkneedbcflnidahac.svg)](https://chromewebstore.google.com/detail/bbnjgcjpnialjodpkneedbcflnidahac)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
 ZEN Studyに様々な機能を追加するChrome拡張機能
 
 ## インストール
@@ -17,7 +20,7 @@ ZEN Studyに様々な機能を追加するChrome拡張機能
 
 ### Zipファイルをダウンロードしてインストール
 
-![install with zip](./screenshots/install-with-zip.png)
+![install with zip](screenshots/install-with-zip.png)
 
 1. [最新のリリース](https://github.com/Level222/zen-study-plus/releases/latest)にアクセス
 2. Assets内の `zen-study-plus-v{バージョン}.zip` をダウンロード (zipファイルは解凍不要)
@@ -30,7 +33,7 @@ ZEN Studyに様々な機能を追加するChrome拡張機能
 
 ### 動画の合計時間の表示
 
-![movie time chapter page](./screenshots/movie-time-chapter-page.png)
+![movie time chapter page](screenshots/movie-time-chapter-page.png)
 
 - チャプターページに現在のチャプターの合計時間を表示
 - コースページと月間レポートページに、含まれるそれぞれのチャプターの合計時間と全チャプターの合計時間を表示
@@ -38,7 +41,7 @@ ZEN Studyに様々な機能を追加するChrome拡張機能
 
 ### テキスト入力時の単語数の表示
 
-![word count](./screenshots/word-count.png)
+![word count](screenshots/word-count.png)
 
 - 入力フィールドに文字数とともに単語数を表示
 - 日本語のような単語間に空白がない言語でもカウント可能
@@ -57,12 +60,23 @@ ZEN Studyに様々な機能を追加するChrome拡張機能
   - ミュート (デフォルト: `M`)
   - 全画面表示 (デフォルト: `F`)
   - ピクチャー・イン・ピクチャー (デフォルト: `P`)
+  - シアターモード (デフォルト: `T`)
+- セクションを拡大 (デフォルト: `Ctrl+B`)
 - 前のセクション (デフォルト: `Ctrl+Shift+ArrowUp`)
 - 次のセクション (デフォルト: `Ctrl+Shift+ArrowDown`)
 
 ### `Tab` キーによる操作の改善
 
-- MathJaxの `Tab` キーによるフォーカスの無効化
+- MathJaxの `Tab` キーによるフォーカスを無効化し、意図しないフォーカス移動が発生するのを防ぐ
+
+### 補助テキストのサイズ調整
+
+- 動画下部の補助テキストにスクロールバーが必ず表示されないようにする
+- この機能を有効にしてもスクロールバーが表示された場合、余分な高さを追加可能
+
+### 動画の固定表示の無効化
+
+- 一度手動でウインドウをリサイズしない限り、固定表示するかどうかの再計算がされない問題のある動画の固定表示を無効化する
 
 ### オプションページ
 
@@ -78,7 +92,7 @@ ZEN Studyに様々な機能を追加するChrome拡張機能
 
 ## 貢献方法
 
-問題を報告・修正したり、機能を提案・追加したりする際は、[貢献方法](./CONTRIBUTING.md)をご確認ください。
+問題を報告・修正したり、機能を提案・追加したりする際は、[貢献方法](CONTRIBUTING.md)をご確認ください。
 
 ## ロードマップ
 
@@ -87,8 +101,10 @@ ZEN Studyに様々な機能を追加するChrome拡張機能
 - [x] テキスト入力時の単語数の表示
 - [x] キーボードショートカット
 - [x] MathJaxの `Tab` キーによるフォーカスの無効化
+- [x] 補助テキストのサイズ調整
+- [x] 動画の固定表示の無効化
 - [ ] 入力履歴のバックアップ
 
 ## ライセンス
 
-[MIT](./LICENSE)
+[MIT](LICENSE)
