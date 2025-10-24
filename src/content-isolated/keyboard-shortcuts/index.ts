@@ -1,6 +1,6 @@
 import type { KeyboardEventLike, RuntimeMessage } from '../../utils/runtime-messages';
 import type { ParsedPattern } from '../../utils/shortcut-keys';
-import type { KeyboardShortcutOptions, SyncOptionsWithFallback } from '../../utils/sync-options';
+import type { KeyboardShortcutPatternOptions, SyncOptionsWithFallback } from '../../utils/sync-options';
 import type { ContentFeature } from '../pages';
 import type { Shortcut, ShortcutExecution } from './shortcuts';
 import { filter, fromEvent, map, withLatestFrom } from 'rxjs';
@@ -9,7 +9,7 @@ import shortcuts from './shortcuts';
 
 type ShortcutsOptions = SyncOptionsWithFallback['user']['keyboardShortcuts']['shortcuts'];
 
-type ShortcutWithExecutionProps<T extends KeyboardShortcutOptions> = {
+type ShortcutWithExecutionProps<T extends KeyboardShortcutPatternOptions> = {
   shortcut: Shortcut<ShortcutExecution<T>>;
   parsedPatterns: ParsedPattern[];
   options: T;
@@ -35,9 +35,10 @@ const keyboardShortcuts: ContentFeature = ({ pageContent$, syncOptions$, runtime
   fromEvent<KeyboardEvent>(window, 'keydown').pipe(
     withLatestFrom(shortcutWithExecutionProps$, syncOptions$),
   ).subscribe(([event, shortcutWithExecutionProps, syncOptions]) => {
-    const KeyboardShortcutOptions = syncOptions.user.keyboardShortcuts;
-
-    if (event.target instanceof Element && event.target.matches(KeyboardShortcutOptions.ignoreTargetSelectors)) {
+    if (
+      event.target instanceof Element
+      && event.target.matches(syncOptions.user.keyboardShortcuts.ignoreTargetSelectors)
+    ) {
       return;
     }
 
@@ -69,7 +70,7 @@ const keyboardShortcuts: ContentFeature = ({ pageContent$, syncOptions$, runtime
           options: options as any,
           parsedPatterns,
           pageContent,
-          syncOptions,
+          keyboardShortcutsOptions: syncOptions.user.keyboardShortcuts,
         });
       }
     }

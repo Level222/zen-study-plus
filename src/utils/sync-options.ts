@@ -36,14 +36,17 @@ export type MovieTimeListPageOptionsWithSummary = z.infer<typeof MovieTimeListPa
 
 export type MovieTimeListPageOptionsWithSummaryRequired = Required<MovieTimeListPageOptionsWithSummary>;
 
-export const KeyboardShortcutOptions = z.object({
+export const KeyboardShortcutPatternOptions = z.object({
   patterns: z.string().optional(),
 });
 
-export type KeyboardShortcutOptions = z.infer<typeof KeyboardShortcutOptions>;
+export type KeyboardShortcutPatternOptions = z.infer<typeof KeyboardShortcutPatternOptions>;
 
-export const SyncOptionsV1 = z.object({
-  version: z.literal(1),
+/**
+ * Release in v1.0.0
+ */
+export const SyncOptionsV4 = z.object({
+  version: z.literal(4),
   user: z.object({
     movieTime: z.object({
       timeout: z.number(),
@@ -58,58 +61,34 @@ export const SyncOptionsV1 = z.object({
         monthlyReports: MovieTimeListPageOptionsWithSummary,
       }),
     }),
-  }),
-});
-
-export type SyncOptionsV1 = z.infer<typeof SyncOptionsV1>;
-
-export const SyncOptionsV2 = SyncOptionsV1.extend({
-  version: z.literal(2),
-  user: SyncOptionsV1.shape.user.extend({
     wordCount: z.object({
       enabled: z.boolean(),
       timeout: z.number(),
       fieldSelectors: z.string().optional(),
       counterSelectors: z.string().optional(),
     }),
-  }),
-});
-
-export type SyncOptionsV2 = z.infer<typeof SyncOptionsV2>;
-
-export const SyncOptionsV3 = SyncOptionsV2.extend({
-  version: z.literal(3),
-  user: SyncOptionsV2.shape.user.extend({
     keyboardShortcuts: z.object({
       shortcuts: z.object({
-        playOrPause: KeyboardShortcutOptions,
-        seekBackward: KeyboardShortcutOptions.extend({
+        playOrPause: KeyboardShortcutPatternOptions,
+        seekBackward: KeyboardShortcutPatternOptions.extend({
           seconds: z.number(),
         }),
-        seekForward: KeyboardShortcutOptions.extend({
+        seekForward: KeyboardShortcutPatternOptions.extend({
           seconds: z.number(),
         }),
-        mute: KeyboardShortcutOptions,
-        fullscreen: KeyboardShortcutOptions,
-        pictureInPicture: KeyboardShortcutOptions,
-        previousSection: KeyboardShortcutOptions,
-        nextSection: KeyboardShortcutOptions,
+        mute: KeyboardShortcutPatternOptions,
+        fullscreen: KeyboardShortcutPatternOptions,
+        pictureInPicture: KeyboardShortcutPatternOptions,
+        previousSection: KeyboardShortcutPatternOptions,
+        nextSection: KeyboardShortcutPatternOptions,
       }),
-      defaultShortcutsToDisable: KeyboardShortcutOptions,
+      defaultShortcutsToDisable: KeyboardShortcutPatternOptions,
       ignoreTargetSelectors: z.string().optional(),
     }),
     pageComponents: z.object({
       sectionVideoSelectors: z.string().optional(),
       chapterSectionListItemsSelectors: z.string().optional(),
     }),
-  }),
-});
-
-export type SyncOptionsV3 = z.infer<typeof SyncOptionsV3>;
-
-export const SyncOptionsV4 = SyncOptionsV3.extend({
-  version: z.literal(4),
-  user: SyncOptionsV3.shape.user.extend({
     disableMathJaxFocus: z.object({
       enabled: z.boolean(),
       mathJaxElementSelectors: z.string().optional(),
@@ -119,6 +98,9 @@ export const SyncOptionsV4 = SyncOptionsV3.extend({
 
 export type SyncOptionsV4 = z.infer<typeof SyncOptionsV4>;
 
+/**
+ * Release in v1.0.2
+ */
 export const SyncOptionsV5 = SyncOptionsV4.extend({
   version: z.literal(5),
   user: SyncOptionsV4.shape.user.extend({
@@ -130,135 +112,63 @@ export const SyncOptionsV5 = SyncOptionsV4.extend({
 
 export type SyncOptionsV5 = z.infer<typeof SyncOptionsV5>;
 
+/**
+ * Release in v1.1.0
+ */
 export const SyncOptionsV6 = SyncOptionsV5.extend({
   version: z.literal(6),
-  user: SyncOptionsV5.shape.user.extend({
-    subMaterialSizeAdjustment: z.object({
-      enabled: z.boolean(),
-      additionalHeight: z.number(),
-      timeout: z.number(),
-      subMaterialSelectors: z.string().optional(),
+  user: SyncOptionsV5.shape.user
+    .omit({ pageComponents: true })
+    .extend({
+      movieTime: SyncOptionsV5.shape.user.shape.movieTime
+        .omit({
+          timeout: true,
+        })
+        .extend({
+          pages: SyncOptionsV5.shape.user.shape.movieTime.shape.pages.extend({
+            chapter: SyncOptionsV5.shape.user.shape.movieTime.shape.pages.shape.chapter.omit({
+              expanderSelectors: true,
+            }),
+          }),
+        }),
+      wordCount: SyncOptionsV5.shape.user.shape.wordCount.omit({
+        timeout: true,
+      }),
+      keyboardShortcuts: SyncOptionsV5.shape.user.shape.keyboardShortcuts.extend({
+        videoShortcutTimeout: z.number(),
+        sectionVideoSelectors: z.string().optional(),
+        sectionListItemSelectors: z.string().optional(),
+      }),
+      referenceSizeAdjustment: z.object({
+        enabled: z.boolean(),
+        additionalHeight: z.number(),
+        maxHeight: z.number(),
+        referenceSelectors: z.string().optional(),
+      }),
+      disableStickyMovie: z.object({
+        enabled: z.boolean(),
+      }),
     }),
-  }),
 });
 
 export type SyncOptionsV6 = z.infer<typeof SyncOptionsV6>;
 
-export const SyncOptionsV7 = SyncOptionsV6.extend({
-  version: z.literal(7),
-  user: SyncOptionsV6.shape.user.extend({
-    disableStickyMovie: z.object({
-      enabled: z.boolean(),
-    }),
-  }),
-});
-
-export type SyncOptionsV7 = z.infer<typeof SyncOptionsV7>;
-
-export const SyncOptionsV8 = SyncOptionsV7.extend({
-  version: z.literal(8),
-  user: SyncOptionsV7.shape.user.extend({
-    keyboardShortcuts: SyncOptionsV7.shape.user.shape.keyboardShortcuts.extend({
-      videoShortcutTimeout: z.number(),
-    }),
-  }),
-});
-
-export type SyncOptionsV8 = z.infer<typeof SyncOptionsV8>;
-
-export const SyncOptionsV9 = SyncOptionsV8.extend({
-  version: z.literal(9),
-  user: SyncOptionsV8.shape.user
-    .omit({ subMaterialSizeAdjustment: true })
-    .extend({
-      referenceSizeAdjustment: SyncOptionsV7.shape.user.shape.subMaterialSizeAdjustment
-        .omit({ subMaterialSelectors: true })
-        .extend({
-          referenceSelectors: SyncOptionsV7.shape.user.shape.subMaterialSizeAdjustment.shape.subMaterialSelectors,
-          maxHeight: z.number(),
-        }),
-    }),
-});
-
-export type SyncOptionsV9 = z.infer<typeof SyncOptionsV9>;
-
-export const SyncOptionsV10 = SyncOptionsV9.extend({
-  version: z.literal(10),
-  user: SyncOptionsV9.shape.user.extend({
-    movieTime: SyncOptionsV9.shape.user.shape.movieTime
-      .extend({
-        pages: SyncOptionsV9.shape.user.shape.movieTime.shape.pages.extend({
-          chapter: SyncOptionsV9.shape.user.shape.movieTime.shape.pages.shape.chapter.omit({
-            expanderSelectors: true,
-          }),
-        }),
-      })
-      .omit({
-        timeout: true,
-      }),
-    wordCount: SyncOptionsV9.shape.user.shape.wordCount.omit({
-      timeout: true,
-    }),
-    referenceSizeAdjustment: SyncOptionsV9.shape.user.shape.referenceSizeAdjustment.omit({
-      timeout: true,
-    }),
-  }),
-});
-
-export type SyncOptionsV10 = z.infer<typeof SyncOptionsV10>;
-
 export const HistoricalSyncOptions = z.union([
-  SyncOptionsV1,
-  SyncOptionsV2,
-  SyncOptionsV3,
   SyncOptionsV4,
   SyncOptionsV5,
   SyncOptionsV6,
-  SyncOptionsV7,
-  SyncOptionsV8,
-  SyncOptionsV9,
-  SyncOptionsV10,
 ]);
 
 export type HistoricalSyncOptions = z.infer<typeof HistoricalSyncOptions>;
 
-export const SyncOptions = SyncOptionsV10;
-export type SyncOptions = SyncOptionsV10;
+export const SyncOptions = SyncOptionsV6;
+export type SyncOptions = SyncOptionsV6;
 
 export const UserOptions = SyncOptions.shape.user;
 export type UserOptions = z.infer<typeof UserOptions>;
 
 export const migrateHistoricalSyncOptions = (options: HistoricalSyncOptions): SyncOptions => {
   switch (options.version) {
-    case 1:
-      return migrateHistoricalSyncOptions({
-        ...options,
-        version: 2,
-        user: {
-          ...options.user,
-          // timeout option is deprecated
-          wordCount: { ...defaultSyncOptions.user.wordCount, timeout: 0 },
-        },
-      });
-    case 2:
-      return migrateHistoricalSyncOptions({
-        ...options,
-        version: 3,
-        user: {
-          ...options.user,
-          keyboardShortcuts: { ...defaultSyncOptions.user.keyboardShortcuts },
-          pageComponents: { ...defaultSyncOptions.user.pageComponents },
-        },
-      });
-    case 3:
-      return migrateHistoricalSyncOptions({
-        ...options,
-        version: 4,
-        user: {
-          ...options.user,
-          disableMathJaxFocus: { ...defaultSyncOptions.user.disableMathJaxFocus },
-        },
-      });
     case 4:
       return migrateHistoricalSyncOptions({
         ...options,
@@ -287,51 +197,7 @@ export const migrateHistoricalSyncOptions = (options: HistoricalSyncOptions): Sy
         ...options,
         version: 6,
         user: {
-          ...options.user,
-          // timeout option is deprecated
-          subMaterialSizeAdjustment: { ...defaultSyncOptions.user.referenceSizeAdjustment, timeout: 0 },
-        },
-      });
-    case 6:
-      return migrateHistoricalSyncOptions({
-        ...options,
-        version: 7,
-        user: {
-          ...options.user,
-          disableStickyMovie: { ...defaultSyncOptions.user.disableStickyMovie },
-        },
-      });
-    case 7:
-      return migrateHistoricalSyncOptions({
-        ...options,
-        version: 8,
-        user: {
-          ...options.user,
-          keyboardShortcuts: {
-            ...options.user.keyboardShortcuts,
-            videoShortcutTimeout: defaultSyncOptions.user.keyboardShortcuts.videoShortcutTimeout,
-          },
-        },
-      });
-    case 8:
-      return migrateHistoricalSyncOptions({
-        ...options,
-        version: 9,
-        user: {
-          ...omit(options.user, ['subMaterialSizeAdjustment']),
-          referenceSizeAdjustment: {
-            ...omit(options.user.subMaterialSizeAdjustment, ['subMaterialSelectors']),
-            referenceSelectors: options.user.subMaterialSizeAdjustment.subMaterialSelectors,
-            maxHeight: defaultSyncOptions.user.referenceSizeAdjustment.maxHeight,
-          },
-        },
-      });
-    case 9:
-      return migrateHistoricalSyncOptions({
-        ...options,
-        version: 10,
-        user: {
-          ...options.user,
+          ...omit(options.user, ['pageComponents']),
           movieTime: {
             ...omit(options.user.movieTime, ['timeout']),
             pages: {
@@ -340,10 +206,17 @@ export const migrateHistoricalSyncOptions = (options: HistoricalSyncOptions): Sy
             },
           },
           wordCount: omit(options.user.wordCount, ['timeout']),
-          referenceSizeAdjustment: omit(options.user.referenceSizeAdjustment, ['timeout']),
+          keyboardShortcuts: {
+            ...options.user.keyboardShortcuts,
+            videoShortcutTimeout: defaultSyncOptions.user.keyboardShortcuts.videoShortcutTimeout,
+            sectionVideoSelectors: options.user.pageComponents.sectionVideoSelectors,
+            sectionListItemSelectors: options.user.pageComponents.chapterSectionListItemsSelectors,
+          },
+          referenceSizeAdjustment: defaultSyncOptions.user.referenceSizeAdjustment,
+          disableStickyMovie: defaultSyncOptions.user.disableStickyMovie,
         },
       });
-    case 10:
+    case 6:
       return options;
   }
 };
