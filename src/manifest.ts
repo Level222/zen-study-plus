@@ -7,7 +7,7 @@ const baseContentScript = {
 const manifest = {
   manifest_version: 3,
   name: 'ZEN Study +',
-  version: '1.0.3',
+  version: '1.1.0',
   description: 'ZEN Studyに様々な機能を追加するChrome拡張機能',
   icons: {
     16: 'icons/icon-16.png',
