@@ -8,13 +8,9 @@ export const SyncStorage = z.object({
 
 export type SyncStorage = z.infer<typeof SyncStorage>;
 
-type GetSyncStorage =
-  & (<T extends keyof SyncStorage>(
-    keys: T | T[] | Pick<SyncStorage, T>,
-  ) => Promise<Record<T, unknown>>)
-  & (
-    (keys?: null) => Promise<{ [K in keyof SyncStorage]?: unknown }>
-  );
+type GetSyncStorage
+  = & (<T extends keyof SyncStorage>(keys: T | T[] | Pick<SyncStorage, T>) => Promise<Record<T, unknown>>)
+    & ((keys?: null) => Promise<{ [K in keyof SyncStorage]?: unknown }>);
 
 export const getSyncStorage: GetSyncStorage = <T extends keyof SyncStorage>(
   keys?: T | T[] | Pick<SyncStorage, T> | null,

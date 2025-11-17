@@ -12,9 +12,9 @@ export type UpdateDefaultShortcutsToDisablePatterns = {
   patterns: string;
 };
 
-export type MessageEventDetail =
-  | UpdateDefaultShortcutsToDisablePatterns
-  | DisableMathJaxInTabOrder;
+export type MessageEventDetail
+  = | UpdateDefaultShortcutsToDisablePatterns
+    | DisableMathJaxInTabOrder;
 
 export type DispatchMessageEvent = (detail: MessageEventDetail) => void;
 

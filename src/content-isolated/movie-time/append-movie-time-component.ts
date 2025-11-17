@@ -88,15 +88,15 @@ type MovieTimeListPageOptionsWithOptionalSummary = SetOptional<
   'summaryParentSelectors'
 >;
 
-export type AppendToAnchorsOptions<T extends object> =
-  & Pick<MovieTimeListPageOptionsWithOptionalSummary, 'parentRelativeSelectors'>
-  & {
-    anchors$: Observable<HTMLAnchorElement[]>;
-    summaryParent$?: Observable<Element | null>;
-    match: PageMatcher<T>;
-    fetchTimeProgress: (pageInfo: T) => Observable<TimeProgress>;
-    isSamePageInfo: (a: T, b: T) => boolean;
-  };
+export type AppendToAnchorsOptions<T extends object>
+  = & Pick<MovieTimeListPageOptionsWithOptionalSummary, 'parentRelativeSelectors'>
+    & {
+      anchors$: Observable<HTMLAnchorElement[]>;
+      summaryParent$?: Observable<Element | null>;
+      match: PageMatcher<T>;
+      fetchTimeProgress: (pageInfo: T) => Observable<TimeProgress>;
+      isSamePageInfo: (a: T, b: T) => boolean;
+    };
 
 type AppendInfo<T extends object> = {
   pageInfo: T;
@@ -216,13 +216,13 @@ export const appendMovieTimeComponentToAnchors = <T extends object>({
   return cleanup;
 };
 
-export type AppendToAnchorsIfEnabledWithSummaryParentObservableOptions<T extends object> =
-  & Pick<AppendToAnchorsOptions<T>, 'summaryParent$' | 'match' | 'fetchTimeProgress' | 'isSamePageInfo'>
-  & {
-    options: MovieTimeListPageOptionsRequired;
-    mutationSelector: MutationSelector;
-    until$: Observable<unknown>;
-  };
+export type AppendToAnchorsIfEnabledWithSummaryParentObservableOptions<T extends object>
+  = & Pick<AppendToAnchorsOptions<T>, 'summaryParent$' | 'match' | 'fetchTimeProgress' | 'isSamePageInfo'>
+    & {
+      options: MovieTimeListPageOptionsRequired;
+      mutationSelector: MutationSelector;
+      until$: Observable<unknown>;
+    };
 
 export const appendMovieTimeComponentToAnchorsIfEnabledWithSummaryParentObservable = <T extends object>({
   options: { enabled, parentRelativeSelectors, anchorSelectors },
@@ -249,13 +249,13 @@ export const appendMovieTimeComponentToAnchorsIfEnabledWithSummaryParentObservab
   return Cleanup.empty();
 };
 
-export type AppendToAnchorsIfEnabledOptions<T extends object> =
-  & Pick<AppendToAnchorsOptions<T>, 'match' | 'fetchTimeProgress' | 'isSamePageInfo'>
-  & {
-    options: MovieTimeListPageOptionsWithOptionalSummary;
-    mutationSelector: MutationSelector;
-    until$: Observable<unknown>;
-  };
+export type AppendToAnchorsIfEnabledOptions<T extends object>
+  = & Pick<AppendToAnchorsOptions<T>, 'match' | 'fetchTimeProgress' | 'isSamePageInfo'>
+    & {
+      options: MovieTimeListPageOptionsWithOptionalSummary;
+      mutationSelector: MutationSelector;
+      until$: Observable<unknown>;
+    };
 
 export const appendMovieTimeComponentToAnchorsIfEnabled = <T extends object>({
   options: { summaryParentSelectors, ...restOptions },

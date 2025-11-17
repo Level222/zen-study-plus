@@ -1,6 +1,7 @@
+import type { Observable } from 'rxjs';
 import type { ChapterAdvancedClassHeaderLessonSection, ChapterAdvancedClassHeaderSectionMovie, ChapterMovieResourceProps, ChapterNSchoolSectionMovie } from '../../api-caller/v2-material';
 import type { ChapterPageInfo, CoursePageInfo, MonthlyReportsPageInfo } from '../../utils/page-info';
-import { concatMap, forkJoin, map, type Observable, of } from 'rxjs';
+import { concatMap, forkJoin, map, of } from 'rxjs';
 import { callApiV2MaterialChapter, callApiV2MaterialCourse, callApiV2ReportProgressMonthly } from '../../api-caller';
 
 export type TimeProgressGroup = {
