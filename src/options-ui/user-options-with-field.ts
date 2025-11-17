@@ -10,12 +10,12 @@ const fieldConfig = buildZodFieldConfig<FieldTypes>();
 
 type FieldConfig = Parameters<typeof fieldConfig>[0];
 
-type Field<T> =
-  & FieldConfig
-  & {
-    superRefinement?: SuperRefinement<T>;
-  }
-  & (T extends object ? { children: FieldChildren<T> } : object);
+type Field<T>
+  = & FieldConfig
+    & {
+      superRefinement?: SuperRefinement<T>;
+    }
+    & (T extends object ? { children: FieldChildren<T> } : object);
 
 type FieldChildren<T> = { [K in keyof T]-?: Field<T[K]> };
 

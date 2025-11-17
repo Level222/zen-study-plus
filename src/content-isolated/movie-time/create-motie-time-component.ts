@@ -1,6 +1,7 @@
+import type { Observable } from 'rxjs';
 import type { TimeProgress, TimeProgressGroup, TimeProgressGroupWithLabel } from './time-progress';
 import { autoUpdate, computePosition, offset, shift } from '@floating-ui/dom';
-import { count, fromEvent, type Observable, share, takeUntil } from 'rxjs';
+import { count, fromEvent, share, takeUntil } from 'rxjs';
 import { cleanable, Cleanup } from '../../utils/cleanup';
 import { el } from '../../utils/helpers';
 import styles from './movie-time.module.css';

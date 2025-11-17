@@ -1,7 +1,8 @@
+import type { Observable } from 'rxjs';
 import type { ChapterPageInfo, CoursePageInfo, MonthlyReportsPageInfo } from '../utils/page-info';
 import type { Chapter, Course } from './v2-material';
 import type { ReportProgressMonthly } from './v2-report-progress-monthly';
-import { map, type Observable } from 'rxjs';
+import { map } from 'rxjs';
 import { ajax } from 'rxjs/ajax';
 
 const ORIGIN = 'https://api.nnn.ed.nico';

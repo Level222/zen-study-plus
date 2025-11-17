@@ -1,5 +1,6 @@
+import type { LinkProps } from '@mui/material';
 import type { FC } from 'react';
-import { Link, type LinkProps } from '@mui/material';
+import { Link } from '@mui/material';
 
 type ExternalLinkProps = LinkProps & {
   href: string;

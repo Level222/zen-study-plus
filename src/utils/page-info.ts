@@ -1,13 +1,14 @@
 import { parseToPositiveIntegers } from './helpers';
 
-export type PageMatcherResult<T extends object> =
+export type PageMatcherResult<T extends object> = (
   | {
     match: true;
     pageInfo: T;
   }
   | {
     match: false;
-  };
+  }
+);
 
 export type PageMatcher<T extends object = object> = (url: URL) => PageMatcherResult<T>;
 
