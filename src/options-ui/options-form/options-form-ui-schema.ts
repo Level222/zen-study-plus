@@ -323,7 +323,7 @@ const optionsFormUiSchemaDefinition: OptionsFormUiSchemaRoot = {
   },
   'modifyStickyMovie': {
     'ui:options': {
-      title: '動画の固定表示の無効化',
+      title: '動画の固定表示の修正',
     },
     'enabled': {
       'ui:options': {
