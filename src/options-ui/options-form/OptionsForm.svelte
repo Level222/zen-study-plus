@@ -12,6 +12,7 @@
   import Accordion from './Accordion.svelte';
   import ObjectTemplate from './ObjectTemplate.svelte';
   import optionsFormUiSchema from './options-form-ui-schema';
+  import Select from './Select.svelte';
   import Title from './Title.svelte';
 
   export type OptionsFormProps = {
@@ -33,6 +34,7 @@
       objectTemplate: ObjectTemplate,
       title: Title,
       accordion: Accordion,
+      selectWidget: Select,
     }),
     uiSchema: optionsFormUiSchema,
     fieldsValidationMode: ON_CHANGE,

@@ -104,18 +104,30 @@ export const modifyProperties = <T extends object>(
 };
 
 export class AdditionalStylesheet {
-  private sheet: CSSStyleSheet | undefined;
+  private sheet: CSSStyleSheet = new CSSStyleSheet();
+  private currentRules = new Map<string, CSSRule>();
 
-  public constructor(
-    private cssText: string,
-  ) {}
-
-  public insert(): Cleanup {
-    if (!this.sheet) {
-      this.sheet = new CSSStyleSheet();
-      this.sheet.replaceSync(this.cssText);
+  /**
+   * Only change updated rules
+   */
+  public replaceRules(newRules: string[]) {
+    for (const [ruleText, rule] of this.currentRules) {
+      if (!newRules.includes(ruleText)) {
+        this.sheet.deleteRule([...this.sheet.cssRules].indexOf(rule));
+        this.currentRules.delete(ruleText);
+      }
     }
 
+    for (const ruleText of newRules) {
+      if (!this.currentRules.has(ruleText)) {
+        const ruleIndex = this.sheet.insertRule(ruleText);
+        const rule = this.sheet.cssRules[ruleIndex];
+        this.currentRules.set(ruleText, rule);
+      }
+    }
+  }
+
+  public insert(): Cleanup {
     if (!document.adoptedStyleSheets.includes(this.sheet)) {
       document.adoptedStyleSheets.push(this.sheet);
     }
@@ -126,12 +138,10 @@ export class AdditionalStylesheet {
   }
 
   public remove() {
-    if (this.sheet) {
-      const sheetIndex = document.adoptedStyleSheets.indexOf(this.sheet);
+    const sheetIndex = document.adoptedStyleSheets.indexOf(this.sheet);
 
-      if (sheetIndex) {
-        document.adoptedStyleSheets.splice(sheetIndex, 1);
-      }
+    if (sheetIndex) {
+      document.adoptedStyleSheets.splice(sheetIndex, 1);
     }
   }
 }

@@ -10,8 +10,8 @@ import { MutationSelector } from '../utils/rxjs-helpers';
 import { getSyncStorage } from '../utils/storage';
 import { SyncOptions } from '../utils/sync-options';
 import disableMathJaxFocus from './disable-math-jax-focus';
-import disableStickyMovie from './disable-sticky-movie';
 import keyboardShortcuts from './keyboard-shortcuts';
+import modifyStickyMovie from './modify-sticky-movie';
 import movieTime from './movie-time';
 import { knownPageTypes } from './pages';
 import referenceSizeAdjustment from './reference-size-adjustment';
@@ -34,7 +34,7 @@ const features: ContentFeature[] = [
   keyboardShortcuts,
   disableMathJaxFocus,
   referenceSizeAdjustment,
-  disableStickyMovie,
+  modifyStickyMovie,
 ];
 
 const syncOptions$ = merge(

@@ -1,10 +1,25 @@
-import type { UiSchemaContent, UiSchemaRef, UiSchemaRoot } from '@sjsf/form';
+import type { UiSchemaContent, UiSchemaDefinition, UiSchemaRef, UiSchemaRoot } from '@sjsf/form';
 import type { OmitIndexSignature } from 'type-fest';
-import type { KeyboardShortcutItemOptions, MovieTimeListPageOptions, MovieTimeListPageOptionsWithSummary, MovieTimePageOptions, UserOptions } from '../../utils/sync-options';
+import type { KeyboardShortcutItemOptions, MovieTimeListPageOptions, MovieTimeListPageOptionsWithSummary, MovieTimePageOptions } from '../../utils/sync-options';
+import z from 'zod';
+import { UserOptions } from '../../utils/sync-options';
+import '@sjsf/form/fields/extra/enum-include';
 
-type OptionsFormUiSchema<T>
-  = & (UiSchemaContent | UiSchemaRef)
-    & (T extends object ? { [K in keyof T]: OptionsFormUiSchema<T[K]> } : unknown);
+type ExtraUiSchemaContent<T> = {
+  enumNamesDefinition?: T extends string ? Record<T, string> : never;
+};
+
+type UiSchemaContentWithExtraContent<T> = UiSchemaContent & {
+  ':extraContent'?: ExtraUiSchemaContent<T>;
+};
+
+type OptionsFormUiSchema<T> = (
+  & (
+    | UiSchemaContentWithExtraContent<T>
+    | UiSchemaRef
+  )
+  & (T extends object ? { [K in keyof T]: OptionsFormUiSchema<T[K]> } : unknown)
+);
 
 type OptionsFormUiSchemaRoot
   = & OptionsFormUiSchema<UserOptions>
@@ -61,7 +76,7 @@ const keyboardShortcutOptionsUiSchema: OptionsFormUiSchema<KeyboardShortcutItemO
   },
 };
 
-const optionsFormUiSchema: UiSchemaRoot = {
+const optionsFormUiSchemaDefinition: OptionsFormUiSchemaRoot = {
   'movieTime': {
     'ui:options': {
       title: '動画合計時間表示',
@@ -242,12 +257,6 @@ const optionsFormUiSchema: UiSchemaRoot = {
         description: '動画関連のショートカットで、動画がロードされるまでの最長待機時間。単位は [ms]。',
       },
     },
-    'sectionVideoSelectors': {
-      'ui:options': {
-        title: '[Advanced] セクション動画セレクター',
-        description: 'セクションページ内の動画要素へのCSSセレクター。空に設定すると既定値を使用。',
-      },
-    },
     'theaterModeButtonSelectors': {
       'ui:options': {
         title: '[Advanced] シアターモードボタンセレクター',
@@ -312,16 +321,129 @@ const optionsFormUiSchema: UiSchemaRoot = {
       },
     },
   },
-  'disableStickyMovie': {
+  'modifyStickyMovie': {
     'ui:options': {
-      title: '動画の固定表示の無効化',
+      title: '動画の固定表示の修正',
     },
     'enabled': {
       'ui:options': {
         title: '有効',
       },
     },
+    'modifyMode': {
+      'ui:options': {
+        title: 'モード',
+        description: '"オリジナル（修正）" に設定すると、元の動画の固定表示の不具合 (動画読み込み時にたまに固定表示されてしまう) を修正する。"無効" に設定すると、シアターモードではない状態での動画の固定表示を完全に無効化する。',
+      },
+      'ui:components': {
+        stringField: 'enumField',
+      },
+      ':extraContent': {
+        enumNamesDefinition: {
+          'ORIGINAL_MODIFIED': 'オリジナル (修正)',
+          'DISABLE': '無効',
+        },
+      },
+    },
+    'playerNotInTheaterModeSelectors': {
+      'ui:options': {
+        title: '[Advanced] シアターモード外プレイヤーセレクター',
+        description: 'シアターモード状態ではない動画プレーヤーへのCSSセレクター。空に設定すると既定値を使用。',
+      },
+    },
   },
-} satisfies OptionsFormUiSchemaRoot;
+  'commonComponents': {
+    'ui:options': {
+      title: '共通部品',
+    },
+    'sectionVideoSelectors': {
+      'ui:options': {
+        title: '[Advanced] セクション動画セレクター',
+        description: 'セクションページ内の動画要素へのCSSセレクター。空に設定すると既定値を使用。',
+      },
+    },
+  },
+};
+
+type ExtraProcess = <T extends UiSchemaContentWithExtraContent<unknown>>(uiSchema: T, zodSchema: z.ZodType) => T;
+
+const applyExtraProcesses = <T>(
+  uiSchema: OptionsFormUiSchema<T>,
+  zodSchema: z.ZodType<T>,
+  processes: ExtraProcess[],
+): UiSchemaDefinition => {
+  let newUiSchema: UiSchemaDefinition;
+
+  if ('$ref' in uiSchema) {
+    newUiSchema = uiSchema;
+  } else {
+    const processed = processes.reduce((accumulatedUiSchema, process) => {
+      return process(accumulatedUiSchema, zodSchema);
+    }, uiSchema);
+
+    const { ':extraContent': _extraContent, ...restUiSchema } = processed;
+    newUiSchema = restUiSchema as UiSchemaDefinition;
+  }
+
+  if (!(zodSchema instanceof z.ZodObject)) {
+    return newUiSchema;
+  }
+
+  return {
+    ...newUiSchema,
+    ...Object.fromEntries(
+      Object.entries(zodSchema.shape).map(([key, childZodSchema]) => {
+        const childUiSchema = newUiSchema[key as keyof typeof newUiSchema] as OptionsFormUiSchema<unknown>;
+        const newChildUiSchema = applyExtraProcesses<unknown>(childUiSchema, childZodSchema, processes);
+        return [key, newChildUiSchema];
+      }),
+    ),
+  };
+};
+
+const applyEnumNamesDefinition: ExtraProcess = (uiSchema, zodSchema) => {
+  if ('$ref' in uiSchema || !(zodSchema instanceof z.ZodEnum)) {
+    return uiSchema;
+  }
+
+  const enumNamesDefinition = uiSchema[':extraContent']?.enumNamesDefinition;
+
+  if (!enumNamesDefinition) {
+    return uiSchema;
+  }
+
+  const enumValues = Object.values(zodSchema.enum) as (keyof typeof enumNamesDefinition)[];
+
+  return {
+    ...uiSchema,
+    'ui:options': {
+      ...uiSchema['ui:options'],
+      enumNames: enumValues.map((enumItem) => enumNamesDefinition[enumItem]),
+    },
+  };
+};
+
+const setMissingOrderPropertyToUiSchemaDefinitionOrder: ExtraProcess = (uiSchema, zodSchema) => {
+  if ('$ref' in uiSchema || !(zodSchema instanceof z.ZodObject) || uiSchema['ui:options']?.order) {
+    return uiSchema;
+  }
+
+  const zodSchemaKeys = Object.keys(zodSchema.shape);
+  const uiSchemaKeys = Object.keys(uiSchema);
+  const uiSchemaKeysInZodSchema = uiSchemaKeys.filter((key) => zodSchemaKeys.includes(key));
+
+  return {
+    ...uiSchema,
+    'ui:options': {
+      ...uiSchema['ui:options'],
+      order: uiSchemaKeysInZodSchema,
+    },
+  };
+};
+
+const optionsFormUiSchema = applyExtraProcesses(optionsFormUiSchemaDefinition, UserOptions, [
+  applyEnumNamesDefinition,
+  setMissingOrderPropertyToUiSchemaDefinitionOrder,
+]);
 
 export default optionsFormUiSchema;
