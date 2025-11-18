@@ -1,10 +1,11 @@
-import antfu from '@antfu/eslint-config';
+import antfu, { GLOB_SVELTE } from '@antfu/eslint-config';
 
 export default antfu({
   lessOpinionated: true,
   stylistic: {
     semi: true,
   },
+  svelte: true,
 })
   .overrides({
     'antfu/stylistic/rules': {
@@ -21,5 +22,8 @@ export default antfu({
         // Zod
         'ts/no-redeclare': 'off',
       },
+    },
+    'antfu/svelte/rules': {
+      files: [GLOB_SVELTE, '**/*.svx'],
     },
   });

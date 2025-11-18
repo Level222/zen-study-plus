@@ -4,6 +4,7 @@ import type { fallbackSyncOptions } from './default-options';
 import { z } from 'zod';
 import { defaultSyncOptions } from './default-options';
 import { omit } from './helpers';
+import { parsePatterns } from './shortcut-keys';
 
 // オプションの変更方法
 // 1. 一つ前のバージョンのオプションを `extend` して変更を加える
@@ -37,7 +38,18 @@ export type MovieTimeListPageOptionsWithSummary = z.infer<typeof MovieTimeListPa
 export type MovieTimeListPageOptionsWithSummaryRequired = Required<MovieTimeListPageOptionsWithSummary>;
 
 export const KeyboardShortcutItemOptions = z.object({
-  patterns: z.string().optional(),
+  patterns: z.string().optional().superRefine((patterns, ctx) => {
+    if (patterns) {
+      try {
+        parsePatterns(patterns);
+      } catch (error) {
+        ctx.addIssue({
+          code: 'custom',
+          message: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
+  }),
 });
 
 export type KeyboardShortcutItemOptions = z.infer<typeof KeyboardShortcutItemOptions>;

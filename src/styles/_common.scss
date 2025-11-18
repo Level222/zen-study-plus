@@ -1,0 +1,36 @@
+@use "@picocss/pico/scss/pico" with (
+  $theme-color: "azure",
+  $semantic-root-element: "#app",
+  $breakpoints: (
+    sm: (
+      breakpoint: 576px,
+      viewport: 510px,
+      root-font-size: 100%,
+    ),
+    md: (
+      breakpoint: 768px,
+      viewport: 700px,
+      root-font-size: 100%,
+    ),
+    lg: (
+      breakpoint: 1024px,
+      viewport: 950px,
+      root-font-size: 100%,
+    ),
+    xl: (
+      breakpoint: 1280px,
+      viewport: 1200px,
+      root-font-size: 100%,
+    ),
+    xxl: (
+      breakpoint: 1536px,
+      viewport: 1450px,
+      root-font-size: 100%,
+    )
+  ),
+);
+
+body {
+  font-family: inherit;
+  font-size: inherit;
+}

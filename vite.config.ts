@@ -1,5 +1,6 @@
 import type { UserConfig } from 'vite';
 import path from 'node:path';
+import { svelte } from '@sveltejs/vite-plugin-svelte';
 import webExtension from 'vite-plugin-web-extension';
 import zipPack from 'vite-plugin-zip-pack';
 import { CLASS_NAME_PREFIX } from './src/constants';
@@ -31,9 +32,12 @@ export default {
       disableAutoLaunch: true,
     }),
     zipPack({
-      outDir: 'releases',
+      outDir: path.resolve(import.meta.dirname, 'releases'),
       outFileName: `${RELEASE_NAME}-v${manifest.version}.zip`,
       filter: (fileName) => fileName !== '.vite',
+    }),
+    svelte({
+      configFile: path.resolve(import.meta.dirname, 'svelte.config.js'),
     }),
   ],
 } satisfies UserConfig;
