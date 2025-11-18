@@ -15,6 +15,7 @@
     try {
       const unknownStorage = await getSyncStorage('options');
       initialSyncOptions = SyncOptions.parse(unknownStorage.options);
+      syncOptionsLoadingFailed = false;
     } catch {
       syncOptionsLoadingFailed = true;
     }
@@ -24,7 +25,7 @@
     loadSyncOptions();
   });
 
-  let resetDialogOpen = $state(false);
+  let resettingDialogOpen = $state(false);
 
   const onSubmit = async (userOptions: UserOptions) => {
     if (!initialSyncOptions) {
@@ -55,7 +56,7 @@
     {/if}
     {#if syncOptionsLoadingFailed}
       <p class='error'>
-        オプションの読み込みに失敗しました。リセットすることで解決することもできます。
+        オプションの読み込みに失敗しました。リセットにより解決できるかもしれません。
       </p>
     {/if}
     <p>
@@ -63,7 +64,7 @@
         type='button'
         class='secondary'
         onclick={() => {
-          resetDialogOpen = true;
+          resettingDialogOpen = true;
         }}
       >
         すべてのオプションをリセット
@@ -75,17 +76,17 @@
     <Glossary />
   </section>
   <ConfirmationDialog
-    open={resetDialogOpen}
+    open={resettingDialogOpen}
     yes='リセット'
     no='キャンセル'
     onclose={(isConfirmed) => {
+      resettingDialogOpen = false;
+
       if (isConfirmed) {
         setSyncStorage({ options: defaultSyncOptions }).then(() => {
           loadSyncOptions();
         });
       }
-
-      resetDialogOpen = false;
     }}
   >
     <h2>オプションのリセット</h2>
