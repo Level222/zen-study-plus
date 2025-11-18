@@ -42,15 +42,6 @@ export const el = <T extends keyof HTMLElementTagNameMap>(
   return element;
 };
 
-export type WithRandomId<T extends object> = T & {
-  randomId: string;
-};
-
-export const withRandomId = <T extends object>(obj: T): WithRandomId<T> => ({
-  ...obj,
-  randomId: crypto.randomUUID(),
-});
-
 export const existDuplication = (array: unknown[]) => array.length !== new Set(array).size;
 
 export type NonPlainObject = UnknownArray | ReadonlyMap<unknown, unknown> | ReadonlySet<unknown>;

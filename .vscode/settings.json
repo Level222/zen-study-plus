@@ -87,11 +87,18 @@
   ],
   // Enable stylelint for all supported languages
   "stylelint.validate": [
-    "css"
+    "css",
+    "scss",
+    "svelte"
   ],
   // Disable the built-in linters
   "css.validate": false,
+  "scss.validate": false,
   // For typescript-plugin-css-modules
   "typescript.tsdk": "./node_modules/typescript/lib",
-  "typescript.enablePromptUseWorkspaceTsdk": true
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  // MDsveX files
+  "files.associations": {
+    "*.svx": "svelte"
+  }
 }
