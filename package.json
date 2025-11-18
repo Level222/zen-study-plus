@@ -37,7 +37,7 @@
     "postcss-html": "^1.8.0",
     "rehype-slug": "^6.0.0",
     "sass-embedded": "^1.93.3",
-    "stylelint": "^16.10.0",
+    "stylelint": "^16.25.0",
     "stylelint-config-clean-order": "^6.1.0",
     "stylelint-config-css-modules": "^4.5.1",
     "stylelint-config-standard-scss": "^16.0.0",

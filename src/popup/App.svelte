@@ -3,7 +3,6 @@
   import ButtonWithIcon from '../components/ButtonWithIcon.svelte';
   import ExternalLink from '../components/ExternalLink.svelte';
   import './app.scss';
-  import '@sjsf/basic-theme/css/pico.css';
 
   const version = chrome.runtime.getManifest().version;
 </script>

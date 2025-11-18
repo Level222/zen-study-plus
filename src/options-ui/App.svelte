@@ -6,6 +6,7 @@
   import Glossary from './Glossary.svx';
   import OptionsForm from './options-form/OptionsForm.svelte';
   import './app.scss';
+  import '@sjsf/basic-theme/css/pico.css';
 
   let initialSyncOptions = $state<SyncOptions>();
   let syncOptionsLoadingFailed = $state(false);
