@@ -6,7 +6,7 @@ import type { SyncOptions } from './sync-options';
  * 全オプションの既定値
  */
 export const defaultSyncOptions: SyncOptions = {
-  version: 6,
+  version: 7,
   user: {
     movieTime: {
       pages: {
@@ -76,9 +76,11 @@ export const defaultSyncOptions: SyncOptions = {
       additionalHeight: 0,
       maxHeight: 20000,
     },
-    disableStickyMovie: {
+    modifyStickyMovie: {
       enabled: true,
+      modifyMode: 'ORIGINAL_MODIFIED',
     },
+    commonComponents: {},
   },
 };
 
@@ -124,7 +126,6 @@ export const fallbackSyncOptions = {
       ignoreTargetSelectors: 'input, textarea',
       theaterModeButtonSelectors: 'a:has([type^=theater-mode])',
       expandButtonSelectors: '[aria-label="教材モーダル"] :where([aria-label="縮小する"], [aria-label="拡大する"])',
-      sectionVideoSelectors: '#video-player',
       sectionListItemSelectors: ':is([aria-label$="教材リスト"], [aria-label="レポートリスト"]) > li > :nth-child(1) > div:nth-child(1)',
     },
     disableMathJaxFocus: {
@@ -132,6 +133,12 @@ export const fallbackSyncOptions = {
     },
     referenceSizeAdjustment: {
       referenceSelectors: 'iframe[aria-label="補助テキスト"]',
+    },
+    modifyStickyMovie: {
+      playerNotInTheaterModeSelectors: '[aria-label="動画プレイヤーレイアウト"]:not(:has([type="theater-mode-on"]))',
+    },
+    commonComponents: {
+      sectionVideoSelectors: '#video-player',
     },
   },
 } satisfies OmitDeep<

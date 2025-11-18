@@ -171,16 +171,40 @@ export const SyncOptionsV6 = SyncOptionsV5.extend({
 
 export type SyncOptionsV6 = z.infer<typeof SyncOptionsV6>;
 
+/**
+ * Release in 1.2.0
+ */
+export const SyncOptionsV7 = SyncOptionsV6.extend({
+  version: z.literal(7),
+  user: SyncOptionsV6.shape.user
+    .omit({ disableStickyMovie: true })
+    .extend({
+      keyboardShortcuts: SyncOptionsV6.shape.user.shape.keyboardShortcuts.omit({
+        sectionVideoSelectors: true,
+      }),
+      modifyStickyMovie: SyncOptionsV6.shape.user.shape.disableStickyMovie.extend({
+        modifyMode: z.enum(['ORIGINAL_MODIFIED', 'DISABLE']),
+        playerNotInTheaterModeSelectors: z.string().optional(),
+      }),
+      commonComponents: z.object({
+        sectionVideoSelectors: z.string().optional(),
+      }),
+    }),
+});
+
+export type SyncOptionsV7 = z.infer<typeof SyncOptionsV7>;
+
 export const HistoricalSyncOptions = z.union([
   SyncOptionsV4,
   SyncOptionsV5,
   SyncOptionsV6,
+  SyncOptionsV7,
 ]);
 
 export type HistoricalSyncOptions = z.infer<typeof HistoricalSyncOptions>;
 
-export const SyncOptions = SyncOptionsV6;
-export type SyncOptions = SyncOptionsV6;
+export const SyncOptions = SyncOptionsV7;
+export type SyncOptions = SyncOptionsV7;
 
 export const UserOptions = SyncOptions.shape.user;
 export type UserOptions = z.infer<typeof UserOptions>;
@@ -237,10 +261,26 @@ export const migrateHistoricalSyncOptions = (options: HistoricalSyncOptions): Sy
             sectionListItemSelectors: options.user.pageComponents.chapterSectionListItemsSelectors,
           },
           referenceSizeAdjustment: defaultSyncOptions.user.referenceSizeAdjustment,
-          disableStickyMovie: defaultSyncOptions.user.disableStickyMovie,
+          disableStickyMovie: defaultSyncOptions.user.modifyStickyMovie,
         },
       });
     case 6:
+      return migrateHistoricalSyncOptions({
+        ...options,
+        version: 7,
+        user: {
+          ...options.user,
+          keyboardShortcuts: omit(options.user.keyboardShortcuts, ['sectionVideoSelectors']),
+          modifyStickyMovie: {
+            ...options.user.disableStickyMovie,
+            ...defaultSyncOptions.user.modifyStickyMovie,
+          },
+          commonComponents: {
+            sectionVideoSelectors: options.user.keyboardShortcuts.sectionVideoSelectors,
+          },
+        },
+      });
+    case 7:
       return options;
   }
 };

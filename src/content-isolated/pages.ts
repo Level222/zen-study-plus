@@ -39,13 +39,11 @@ export const knownPageTypes = [
   },
 ] as const satisfies PageTypeDeclaration[];
 
-export type ToPageType<T extends PageTypeDeclaration> = {
-  name: T['name'];
-  pageInfo: T['match'] extends PageMatcher<infer U> ? U : never;
-};
-
 export type MapToPageType<T extends PageTypeDeclaration[]> = {
-  [K in keyof T]: ToPageType<T[K]>
+  [K in keyof T]: {
+    name: T[K]['name'];
+    pageInfo: T[K]['match'] extends PageMatcher<infer U> ? U : never;
+  }
 };
 
 export type PageType = MapToPageType<typeof knownPageTypes>[number];

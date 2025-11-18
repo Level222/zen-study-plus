@@ -70,7 +70,7 @@ const keyboardShortcuts: ContentFeature = ({ pageContent$, syncOptions$, runtime
           options: options as any,
           parsedPatterns,
           pageContent,
-          keyboardShortcutsOptions: syncOptions.user.keyboardShortcuts,
+          syncOptions,
         });
       }
     }
