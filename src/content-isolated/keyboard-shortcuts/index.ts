@@ -1,40 +1,32 @@
-import type { KeyboardEventLike, RuntimeMessage } from '../../utils/runtime-messages';
-import type { ParsedPattern } from '../../utils/shortcut-keys';
-import type { KeyboardShortcutItemOptions, SyncOptionsWithFallback } from '../../utils/sync-options';
+import type { RuntimeMessage } from '../../utils/runtime-messages';
+import type { KeyboardEventLike, ParsedPattern } from '../../utils/shortcut-keys';
+import type { SyncOptionsWithFallback } from '../../utils/sync-options';
 import type { ContentFeature } from '../pages';
-import type { Shortcut, ShortcutExecution } from './shortcuts';
 import { filter, fromEvent, map, withLatestFrom } from 'rxjs';
 import { matchPatterns, parsePatterns } from '../../utils/shortcut-keys';
 import shortcuts from './shortcuts';
 
 type ShortcutsOptions = SyncOptionsWithFallback['user']['keyboardShortcuts']['shortcuts'];
 
-type ShortcutWithExecutionProps<T extends KeyboardShortcutItemOptions> = {
-  shortcut: Shortcut<ShortcutExecution<T>>;
-  parsedPatterns: ParsedPattern[];
-  options: T;
-};
-
 const keyboardShortcuts: ContentFeature = ({ pageContent$, syncOptions$, runtimeMessage$, dispatchMessageEvent }) => {
-  const shortcutWithExecutionProps$ = syncOptions$.pipe(
-    map((syncOptions): { [K in keyof ShortcutsOptions]?: ShortcutWithExecutionProps<ShortcutsOptions[K]> } => (
+  const parsedPatternsRecord$ = syncOptions$.pipe(
+    map((syncOptions): { [K in keyof ShortcutsOptions]?: ParsedPattern[] } => (
       Object.fromEntries(
-        Object.entries(syncOptions.user.keyboardShortcuts.shortcuts).flatMap(([key, { patterns, ...options }]) => (
-          patterns
-            ? [[key, {
-                shortcut: shortcuts[key as keyof ShortcutsOptions],
-                parsedPatterns: parsePatterns(patterns),
-                options,
-              }]]
-            : []
-        )),
+        Object.entries(syncOptions.user.keyboardShortcuts.shortcuts).flatMap(([name, { patterns }]) => {
+          if (!patterns) {
+            return [];
+          }
+
+          const parsedPatterns = parsePatterns(patterns);
+          return [[name, parsedPatterns]];
+        }),
       )
     )),
   );
 
   fromEvent<KeyboardEvent>(window, 'keydown').pipe(
-    withLatestFrom(shortcutWithExecutionProps$, syncOptions$),
-  ).subscribe(([event, shortcutWithExecutionProps, syncOptions]) => {
+    withLatestFrom(parsedPatternsRecord$, syncOptions$),
+  ).subscribe(([event, parsedPatternsRecord, syncOptions]) => {
     if (
       event.target instanceof Element
       && event.target.matches(syncOptions.user.keyboardShortcuts.ignoreTargetSelectors)
@@ -46,33 +38,37 @@ const keyboardShortcuts: ContentFeature = ({ pageContent$, syncOptions$, runtime
 
     const eventLike: KeyboardEventLike = { code, key, shiftKey, altKey, ctrlKey, metaKey };
 
-    const isMatchSomePatterns = Object.values(shortcutWithExecutionProps).some(({ parsedPatterns }) => (
-      matchPatterns(parsedPatterns, eventLike)
-    ));
+    const matchedShortcutNames = Object.entries(parsedPatternsRecord)
+      .filter(([, parsedPatterns]) => matchPatterns(parsedPatterns, eventLike))
+      .map(([name]) => name as keyof ShortcutsOptions);
 
-    if (isMatchSomePatterns) {
-      event.preventDefault();
+    if (matchedShortcutNames.length === 0) {
+      return;
     }
+
+    event.preventDefault();
 
     chrome.runtime.sendMessage<RuntimeMessage>({
       type: 'SEND_BACK_KEYBOARD_SHORTCUTS',
-      sendBackEvent: eventLike,
+      sendBackKeyboardShortcutNames: matchedShortcutNames,
     });
   });
 
   runtimeMessage$.pipe(
     filter((message) => message.type === 'KEYBOARD_SHORTCUTS'),
-    withLatestFrom(shortcutWithExecutionProps$, pageContent$, syncOptions$),
-  ).subscribe(([{ event }, shortcutWithExecutionProps, pageContent, syncOptions]) => {
-    for (const { shortcut, options, parsedPatterns } of Object.values(shortcutWithExecutionProps)) {
-      if (matchPatterns(parsedPatterns, event)) {
-        shortcut({
-          options: options as any,
-          parsedPatterns,
-          pageContent,
-          syncOptions,
-        });
-      }
+    withLatestFrom(pageContent$, syncOptions$),
+  ).subscribe(([{ keyboardShortcutNames }, pageContent, syncOptions]) => {
+    const keyboardShortcutsOptionsRecord = syncOptions.user.keyboardShortcuts.shortcuts;
+
+    for (const name of keyboardShortcutNames) {
+      const shortcut = shortcuts[name];
+      const options = keyboardShortcutsOptionsRecord[name];
+
+      shortcut({
+        options: options as any,
+        pageContent,
+        syncOptions,
+      });
     }
   });
 

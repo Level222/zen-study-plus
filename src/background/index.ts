@@ -27,7 +27,7 @@ chrome.runtime.onMessage.addListener((unknownMessage, sender) => {
       if (tabId) {
         chrome.tabs.sendMessage<RuntimeMessage>(tabId, {
           type: 'KEYBOARD_SHORTCUTS',
-          event: message.sendBackEvent,
+          keyboardShortcutNames: message.sendBackKeyboardShortcutNames,
         });
       }
 
