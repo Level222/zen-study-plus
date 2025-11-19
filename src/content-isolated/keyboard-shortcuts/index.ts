@@ -27,14 +27,17 @@ const keyboardShortcuts: ContentFeature = ({ pageContent$, syncOptions$, runtime
   fromEvent<KeyboardEvent>(window, 'keydown').pipe(
     withLatestFrom(parsedPatternsRecord$, syncOptions$),
   ).subscribe(([event, parsedPatternsRecord, syncOptions]) => {
+    const { code, key, shiftKey, altKey, ctrlKey, metaKey } = event;
+
     if (
       event.target instanceof Element
       && event.target.matches(syncOptions.user.keyboardShortcuts.ignoreTargetSelectors)
+      && !altKey
+      && !ctrlKey
+      && !metaKey
     ) {
       return;
     }
-
-    const { code, key, shiftKey, altKey, ctrlKey, metaKey } = event;
 
     const eventLike: KeyboardEventLike = { code, key, shiftKey, altKey, ctrlKey, metaKey };
 

@@ -248,7 +248,7 @@ const optionsFormUiSchemaDefinition: OptionsFormUiSchemaRoot = {
     'ignoreTargetSelectors': {
       'ui:options': {
         title: '[Advanced] 無視するターゲットセレクター',
-        description: 'ショートカットをトリガーしない要素へのCSSセレクター。空に設定すると既定値を使用。',
+        description: 'Alt, Ctrlなどの修飾キーを含まないショートカットをトリガーしない要素へのCSSセレクター。入力要素などを指定する。空に設定すると既定値を使用。',
       },
     },
     'videoShortcutTimeout': {
