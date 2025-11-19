@@ -1,4 +1,3 @@
-import type { ParsedPattern } from '../../utils/shortcut-keys';
 import type { KeyboardShortcutItemOptions, SyncOptionsWithFallback } from '../../utils/sync-options';
 import type { PageContent } from '../pages';
 import { fromEvent, map, take, takeUntil, timer } from 'rxjs';
@@ -7,7 +6,6 @@ type ShortcutsOptions = SyncOptionsWithFallback['user']['keyboardShortcuts']['sh
 
 export type ShortcutExecution<T extends KeyboardShortcutItemOptions = KeyboardShortcutItemOptions> = {
   options: T;
-  parsedPatterns: ParsedPattern[];
   pageContent: PageContent;
   syncOptions: SyncOptionsWithFallback;
 };

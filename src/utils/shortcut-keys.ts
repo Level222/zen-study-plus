@@ -1,5 +1,4 @@
 import type { SetOptional } from 'type-fest';
-import type { KeyboardEventLike } from './runtime-messages';
 import { combinations, createCharListRange, existDuplication } from './helpers';
 
 export const SUPPORTED_RAW_CODES = [
@@ -275,6 +274,15 @@ export const parsePatterns = (patterns: string): ParsedPattern[] => {
   const normalizedKeyPatterns = patterns.replace(RESERVED.space, '');
   const keyPatternList = normalizedKeyPatterns.split(',');
   return keyPatternList.map(parseSinglePattern);
+};
+
+export type KeyboardEventLike = {
+  code: string;
+  key: string;
+  shiftKey: boolean;
+  altKey: boolean;
+  ctrlKey: boolean;
+  metaKey: boolean;
 };
 
 export const matchSinglePattern = (
