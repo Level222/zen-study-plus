@@ -1,7 +1,7 @@
 import type defaults from 'defaults';
 import type { PartialDeep } from 'type-fest';
 import type { fallbackSyncOptions } from './default-options';
-import { z } from 'zod';
+import * as z from 'zod';
 import { defaultSyncOptions } from './default-options';
 import { omit } from './helpers';
 import { parsePatterns } from './shortcut-keys';
