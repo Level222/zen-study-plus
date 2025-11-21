@@ -172,7 +172,7 @@ export const SyncOptionsV6 = SyncOptionsV5.extend({
 export type SyncOptionsV6 = z.infer<typeof SyncOptionsV6>;
 
 /**
- * Release in 1.2.0
+ * Release in v1.2.0
  */
 export const SyncOptionsV7 = SyncOptionsV6.extend({
   version: z.literal(7),
