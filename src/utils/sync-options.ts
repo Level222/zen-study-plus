@@ -12,7 +12,7 @@ import { parsePatterns } from './shortcut-keys';
 // 3. `SyncOptions` を新バージョンのオプションに変更
 // 4. `utils/default-options.ts` の既定値を変更
 // 5. `migrateHistoricalSyncOptions` に前バージョンからの移行を追加
-// 6. `options-ui/user-options-with-field.ts` にオプションの説明等を追加
+// 6. `options-ui/options-form/options-form-ui-schema.ts` にオプションの説明等を追加
 
 export const MovieTimePageOptions = z.object({
   enabled: z.boolean(),

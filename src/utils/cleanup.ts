@@ -44,7 +44,7 @@ export class Cleanup {
   ) {}
 
   /**
-   * 2回目以降の呼び出しはadd()で追加された子Cleanupのみ実行される
+   * 2回目以降の呼び出しは、`add()` で追加された子 `Cleanup` のみ実行される。
    */
   public execute(): void {
     if (this.executeCount === 0) {

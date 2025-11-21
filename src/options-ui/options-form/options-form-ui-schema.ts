@@ -18,7 +18,7 @@ type OptionsFormUiSchema<T> = (
     | UiSchemaContentWithExtraContent<T>
     | UiSchemaRef
   )
-  & (T extends object ? { [K in keyof T]: OptionsFormUiSchema<T[K]> } : unknown)
+  & (T extends object ? { [K in keyof T]-?: OptionsFormUiSchema<T[K]> } : unknown)
 );
 
 type OptionsFormUiSchemaRoot
@@ -67,14 +67,16 @@ const createMovieTimeListPageOptionsWithSummaryUiSchema = (
   },
 });
 
-const keyboardShortcutOptionsUiSchema: OptionsFormUiSchema<KeyboardShortcutItemOptions> = {
+const keyboardShortcutItemOptionsUiSchema = (
+  defaultIfEmpty: boolean,
+): OptionsFormUiSchema<KeyboardShortcutItemOptions> => ({
   patterns: {
     'ui:options': {
       title: 'キーパターン',
-      description: '設定方法は下記用語解説を参照。空に設定すると無効になる。',
+      description: `設定方法は下記用語解説を参照。${defaultIfEmpty ? '空に設定すると既定値を使用。' : '空に設定すると無効。'}`,
     },
   },
-};
+});
 
 const optionsFormUiSchemaDefinition: OptionsFormUiSchemaRoot = {
   'movieTime': {
@@ -168,13 +170,13 @@ const optionsFormUiSchemaDefinition: OptionsFormUiSchemaRoot = {
         title: 'ショートカット',
       },
       'playOrPause': {
-        ...keyboardShortcutOptionsUiSchema,
+        ...keyboardShortcutItemOptionsUiSchema(false),
         'ui:options': {
           title: '再生/一時停止',
         },
       },
       'seekBackward': {
-        ...keyboardShortcutOptionsUiSchema,
+        ...keyboardShortcutItemOptionsUiSchema(false),
         'ui:options': {
           title: '巻き戻し',
         },
@@ -185,7 +187,7 @@ const optionsFormUiSchemaDefinition: OptionsFormUiSchemaRoot = {
         },
       },
       'seekForward': {
-        ...keyboardShortcutOptionsUiSchema,
+        ...keyboardShortcutItemOptionsUiSchema(false),
         'ui:options': {
           title: '早送り',
         },
@@ -196,50 +198,50 @@ const optionsFormUiSchemaDefinition: OptionsFormUiSchemaRoot = {
         },
       },
       'mute': {
-        ...keyboardShortcutOptionsUiSchema,
+        ...keyboardShortcutItemOptionsUiSchema(false),
         'ui:options': {
           title: 'ミュート',
         },
       },
       'fullscreen': {
-        ...keyboardShortcutOptionsUiSchema,
+        ...keyboardShortcutItemOptionsUiSchema(false),
         'ui:options': {
           title: '全画面表示',
         },
       },
       'pictureInPicture': {
-        ...keyboardShortcutOptionsUiSchema,
+        ...keyboardShortcutItemOptionsUiSchema(false),
         'ui:options': {
           title: 'ピクチャー・イン・ピクチャー',
         },
       },
       'theaterMode': {
-        ...keyboardShortcutOptionsUiSchema,
+        ...keyboardShortcutItemOptionsUiSchema(false),
         'ui:options': {
           title: 'シアターモード',
         },
       },
       'expandSection': {
-        ...keyboardShortcutOptionsUiSchema,
+        ...keyboardShortcutItemOptionsUiSchema(false),
         'ui:options': {
           title: 'セクションを拡大',
         },
       },
       'previousSection': {
-        ...keyboardShortcutOptionsUiSchema,
+        ...keyboardShortcutItemOptionsUiSchema(false),
         'ui:options': {
           title: '前のセクション',
         },
       },
       'nextSection': {
-        ...keyboardShortcutOptionsUiSchema,
+        ...keyboardShortcutItemOptionsUiSchema(false),
         'ui:options': {
           title: '次のセクション',
         },
       },
     },
     'defaultShortcutsToDisable': {
-      ...keyboardShortcutOptionsUiSchema,
+      ...keyboardShortcutItemOptionsUiSchema(true),
       'ui:options': {
         title: '[Advanced] 無効にするデフォルトショートカット',
         description: '無効にしたい、拡張機能無しでZEN Studyにデフォルトで存在するショートカット。空に設定すると既定値を使用。',
