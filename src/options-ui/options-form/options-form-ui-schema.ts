@@ -1,7 +1,7 @@
 import type { UiSchemaContent, UiSchemaDefinition, UiSchemaRef, UiSchemaRoot } from '@sjsf/form';
 import type { OmitIndexSignature } from 'type-fest';
 import type { KeyboardShortcutItemOptions, MovieTimeListPageOptions, MovieTimeListPageOptionsWithSummary, MovieTimePageOptions } from '../../utils/sync-options';
-import z from 'zod';
+import * as z from 'zod';
 import { UserOptions } from '../../utils/sync-options';
 import '@sjsf/form/fields/extra/enum-include';
 

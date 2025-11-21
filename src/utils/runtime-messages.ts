@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import * as z from 'zod';
 import { SyncOptions } from './sync-options';
 
 export const ChangeHistoryStateMessage = z.object({
