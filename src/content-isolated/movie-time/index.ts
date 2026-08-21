@@ -89,6 +89,9 @@ const movieTime: ContentFeature = ({ pageContent$, syncOptions$, mutationSelecto
             ).subscribe(() => {
               button.disabled = true;
 
+              const isZenUniv = [...document.querySelectorAll('[role=tablist] > [role=tab]')]
+                .some((tab) => tab.textContent?.trim() === '履修科目');
+
               if (typeof pageInfo.tab === 'string' && pageInfo.tab !== 'n_school_report') {
                 cleanup.add(
                   appendMovieTimeComponentToAnchorsIfEnabled({
@@ -109,7 +112,12 @@ const movieTime: ContentFeature = ({ pageContent$, syncOptions$, mutationSelecto
                     options: movieTimeOptions.pages.myCourseReport,
                     summaryParent$: of(summaryParent),
                     match: matchMonthlyReportsPage,
-                    fetchTimeProgress: fetchMonthlyReportsTimeProgress,
+                    fetchTimeProgress: (monthlyReportsPageInfo) => (
+                      fetchMonthlyReportsTimeProgress(
+                        monthlyReportsPageInfo,
+                        isZenUniv ? 'zen_univ' : undefined,
+                      )
+                    ),
                     isSamePageInfo: isSameMonthlyReportsPageInfo,
                     mutationSelector,
                     until$,

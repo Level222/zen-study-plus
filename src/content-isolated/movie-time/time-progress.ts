@@ -268,8 +268,9 @@ export const fetchCourseTimeProgress = (
 
 export const fetchMonthlyReportsTimeProgress = (
   monthlyReportsPageInfo: MonthlyReportsPageInfo,
+  service?: 'zen_univ',
 ): Observable<TimeProgress> => (
-  callApiV2ReportProgressMonthly(monthlyReportsPageInfo).pipe(
+  callApiV2ReportProgressMonthly(monthlyReportsPageInfo, service).pipe(
     concatMap(({ deadline_groups, completed_chapters }) => {
       const chapters = [
         ...deadline_groups.flatMap(({ chapters }) => chapters),

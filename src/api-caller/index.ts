@@ -32,6 +32,13 @@ export const callApiV2MaterialCourse = (
 
 export const callApiV2ReportProgressMonthly = (
   { year, month }: MonthlyReportsPageInfo,
+  service?: 'zen_univ',
 ): Observable<ReportProgressMonthly> => {
-  return callApi(`/v2/dashboard/report_progresses/monthly/${year}/${month}`);
+  const query = service === 'zen_univ'
+    ? '?service=zen_univ'
+    : '';
+
+  return callApi(
+    `/v2/dashboard/report_progresses/monthly/${year}/${month}${query}`,
+  );
 };
