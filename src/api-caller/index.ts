@@ -27,7 +27,7 @@ export const callApiV2MaterialChapter = (
 export const callApiV2MaterialCourse = (
   { courseId }: CoursePageInfo,
 ): Observable<Course> => {
-  return callApi(`/v2/material/courses/${courseId}`);
+  return callApi(`/v2/material/courses/${courseId}?revision=1`);
 };
 
 export const callApiV2ReportProgressMonthly = (
