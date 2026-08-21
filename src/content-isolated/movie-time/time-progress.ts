@@ -1,5 +1,5 @@
 import type { Observable } from 'rxjs';
-import type { ChapterAdvancedClassHeaderLessonSection, ChapterAdvancedClassHeaderSectionMovie, ChapterMovieResourceProps, ChapterNSchoolSectionMovie } from '../../api-caller/v2-material';
+import type { ChapterAdvancedClassHeaderLessonSection, ChapterAdvancedClassHeaderSectionMovie, ChapterMovieResourceProps, ChapterNSchoolSectionMovie, ChapterZenUnivSectionMovie } from '../../api-caller/v2-material';
 import type { ChapterPageInfo, CoursePageInfo, MonthlyReportsPageInfo } from '../../utils/page-info';
 import { concatMap, forkJoin, map, of } from 'rxjs';
 import { callApiV2MaterialChapter, callApiV2MaterialCourse, callApiV2ReportProgressMonthly } from '../../api-caller';
@@ -84,6 +84,12 @@ const calcNSchoolSectionsTimeProgressGroup = (
   calcMovieResourcesTimeProgressGroup(sections, ({ passed }) => passed)
 );
 
+const calcZenUnivSectionsTimeProgressGroup = (
+  sections: ChapterZenUnivSectionMovie[],
+): TimeProgressGroup => (
+  calcMovieResourcesTimeProgressGroup(sections, ({ passed }) => passed)
+);
+
 type NSchoolTimeProgressData = {
   allMovie?: TimeProgressGroup;
   mainMovie?: TimeProgressGroup;
@@ -119,6 +125,24 @@ const createAdvancedTimeProgress = (
     groups: [
       { label: '動画', timeProgressGroup: movie },
       { label: '授業', timeProgressGroup: lesson },
+    ].map(({ label, timeProgressGroup }) => ({
+      label,
+      ...timeProgressGroup ?? { goal: 0, current: 0 },
+    })),
+  };
+};
+
+type ZenUnivTimeProgressData = {
+  movie?: TimeProgressGroup;
+};
+
+const createZenUnivTimeProgress = (
+  { movie }: ZenUnivTimeProgressData,
+): TimeProgress => {
+  return {
+    primary: movie ?? { goal: 0, current: 0 },
+    groups: [
+      { label: '全動画', timeProgressGroup: movie },
     ].map(({ label, timeProgressGroup }) => ({
       label,
       ...timeProgressGroup ?? { goal: 0, current: 0 },
@@ -195,6 +219,16 @@ export const fetchChapterTimeProgress = (chapterPageInfo: ChapterPageInfo): Obse
             ),
           });
         }
+
+        case 'zen_univ': {
+          const movieSections = chapter.sections.filter((section) => (
+            section.resource_type === 'movie'
+          ));
+
+          return createZenUnivTimeProgress({
+            movie: calcZenUnivSectionsTimeProgressGroup(movieSections),
+          });
+        }
       }
     }),
   )
@@ -225,6 +259,8 @@ export const fetchCourseTimeProgress = (
           return of(createNSchoolTimeProgress({}));
         case 'advanced':
           return of(createAdvancedTimeProgress({}));
+        case 'zen_univ':
+          return of(createZenUnivTimeProgress({}));
       }
     }),
   )

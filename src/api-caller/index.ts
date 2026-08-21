@@ -21,7 +21,7 @@ const callApi = (path: string): Observable<any> => {
 export const callApiV2MaterialChapter = (
   { courseId, chapterId }: ChapterPageInfo,
 ): Observable<Chapter> => {
-  return callApi(`/v2/material/courses/${courseId}/chapters/${chapterId}`);
+  return callApi(`/v2/material/courses/${courseId}/chapters/${chapterId}?revision=1`);
 };
 
 export const callApiV2MaterialCourse = (
