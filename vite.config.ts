@@ -3,8 +3,8 @@ import path from 'node:path';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import webExtension from 'vite-plugin-web-extension';
 import zipPack from 'vite-plugin-zip-pack';
-import { CLASS_NAME_PREFIX } from './src/constants';
-import manifest from './src/manifest';
+import { CLASS_NAME_PREFIX } from './src/constants.ts';
+import manifest from './src/manifest.ts';
 
 const RELEASE_NAME = 'zen-study-plus';
 
@@ -24,6 +24,11 @@ export default {
   css: {
     modules: {
       generateScopedName: `${CLASS_NAME_PREFIX}_[local]_[hash:base64:5]`,
+    },
+    preprocessorOptions: {
+      scss: {
+        quietDeps: true,
+      },
     },
   },
   plugins: [

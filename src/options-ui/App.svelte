@@ -45,12 +45,7 @@
   <section>
     <h1>ZEN Study + オプション</h1>
     {#if initialSyncOptions}
-      {#key initialSyncOptions}
-        <OptionsForm
-          initialOptions={initialSyncOptions.user}
-          {onSubmit}
-        />
-      {/key}
+      <OptionsForm initialOptions={initialSyncOptions.user} {onSubmit} />
     {:else if !syncOptionsLoadingFailed}
       <p aria-busy='true'>オプションを読み込み中</p>
     {/if}
