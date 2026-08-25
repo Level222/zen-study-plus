@@ -1,8 +1,8 @@
 import type { Observable } from 'rxjs';
-import type { ChapterAdvancedClassHeaderLessonSection, ChapterAdvancedClassHeaderSectionMovie, ChapterMovieResourceProps, ChapterNSchoolSectionMovie } from '../../api-caller/v2-material';
+import type { ChapterAdvancedClassHeaderLessonSection, ChapterAdvancedClassHeaderSectionMovie, ChapterMovieResourceProps, ChapterNSchoolSectionMovie, ChapterZenUnivSectionMovie } from '../../api-caller/v2-material';
 import type { ChapterPageInfo, CoursePageInfo, MonthlyReportsPageInfo } from '../../utils/page-info';
 import { concatMap, forkJoin, map, of } from 'rxjs';
-import { callApiV2MaterialChapter, callApiV2MaterialCourse, callApiV2ReportProgressMonthly } from '../../api-caller';
+import { callApiV2MaterialChapter, callApiV2MaterialCourse, callApiV2ReportProgressMonthly, callApiV2ZenUnivMaterialChapter, callApiV2ZenUnivMaterialCourse, callApiV2ZenUnivReportProgressMonthly, user$ } from '../../api-caller';
 
 export type TimeProgressGroup = {
   /**
@@ -84,6 +84,12 @@ const calcNSchoolSectionsTimeProgressGroup = (
   calcMovieResourcesTimeProgressGroup(sections, ({ passed }) => passed)
 );
 
+const calcZenUnivSectionsTimeProgressGroup = (
+  sections: ChapterZenUnivSectionMovie[],
+): TimeProgressGroup => (
+  calcMovieResourcesTimeProgressGroup(sections, ({ passed }) => passed)
+);
+
 type NSchoolTimeProgressData = {
   allMovie?: TimeProgressGroup;
   mainMovie?: TimeProgressGroup;
@@ -126,8 +132,35 @@ const createAdvancedTimeProgress = (
   };
 };
 
+type ZenUnivTimeProgressData = {
+  movie?: TimeProgressGroup;
+};
+
+const createZenUnivTimeProgress = (
+  { movie }: ZenUnivTimeProgressData,
+): TimeProgress => {
+  return {
+    primary: movie ?? { goal: 0, current: 0 },
+    groups: [
+      { label: '全動画', timeProgressGroup: movie },
+    ].map(({ label, timeProgressGroup }) => ({
+      label,
+      ...timeProgressGroup ?? { goal: 0, current: 0 },
+    })),
+  };
+};
+
 export const fetchChapterTimeProgress = (chapterPageInfo: ChapterPageInfo): Observable<TimeProgress> => (
-  callApiV2MaterialChapter(chapterPageInfo).pipe(
+  user$.pipe(
+    concatMap(({ authority }) => {
+      const isZenUniv = authority.includes('zen_univ_student');
+
+      return (
+        isZenUniv
+          ? callApiV2ZenUnivMaterialChapter(chapterPageInfo)
+          : callApiV2MaterialChapter(chapterPageInfo)
+      );
+    }),
     map(({ course_type, chapter }): TimeProgress => {
       switch (course_type) {
         case 'n_school': {
@@ -195,6 +228,16 @@ export const fetchChapterTimeProgress = (chapterPageInfo: ChapterPageInfo): Obse
             ),
           });
         }
+
+        case 'zen_univ': {
+          const movieSections = chapter.sections.filter((section) => (
+            section.resource_type === 'movie'
+          ));
+
+          return createZenUnivTimeProgress({
+            movie: calcZenUnivSectionsTimeProgressGroup(movieSections),
+          });
+        }
       }
     }),
   )
@@ -203,7 +246,14 @@ export const fetchChapterTimeProgress = (chapterPageInfo: ChapterPageInfo): Obse
 export const fetchCourseTimeProgress = (
   coursePageInfo: CoursePageInfo,
 ): Observable<TimeProgress> => (
-  callApiV2MaterialCourse(coursePageInfo).pipe(
+  user$.pipe(
+    concatMap(({ authority }) => {
+      const isZenUniv = authority.includes('zen_univ_student');
+
+      return isZenUniv
+        ? callApiV2ZenUnivMaterialCourse(coursePageInfo)
+        : callApiV2MaterialCourse(coursePageInfo);
+    }),
     concatMap(({ course }) => {
       const timeProgressObservableList = course.chapters.flatMap(({ resource_type, id }) => (
         resource_type === 'chapter'
@@ -225,6 +275,8 @@ export const fetchCourseTimeProgress = (
           return of(createNSchoolTimeProgress({}));
         case 'advanced':
           return of(createAdvancedTimeProgress({}));
+        case 'zen_univ':
+          return of(createZenUnivTimeProgress({}));
       }
     }),
   )
@@ -233,7 +285,14 @@ export const fetchCourseTimeProgress = (
 export const fetchMonthlyReportsTimeProgress = (
   monthlyReportsPageInfo: MonthlyReportsPageInfo,
 ): Observable<TimeProgress> => (
-  callApiV2ReportProgressMonthly(monthlyReportsPageInfo).pipe(
+  user$.pipe(
+    concatMap(({ authority }) => {
+      const isZenUniv = authority.includes('zen_univ_student');
+
+      return isZenUniv
+        ? callApiV2ZenUnivReportProgressMonthly(monthlyReportsPageInfo)
+        : callApiV2ReportProgressMonthly(monthlyReportsPageInfo);
+    }),
     concatMap(({ deadline_groups, completed_chapters }) => {
       const chapters = [
         ...deadline_groups.flatMap(({ chapters }) => chapters),

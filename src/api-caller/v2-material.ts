@@ -226,7 +226,59 @@ export type ChapterAdvanced = {
     };
 };
 
-export type Chapter = ChapterNSchool | ChapterAdvanced;
+export type ChapterZenUnivSectionCommonProps
+  = & BaseContentProps
+    & ContentURLProps
+    & PassedProps;
+
+export type ChapterZenUnivSectionMovie
+  = & ChapterZenUnivSectionCommonProps
+    & ChapterMovieResourceProps
+    & {
+      material_type: 'main';
+      textbook_info: string;
+      trial: boolean;
+    };
+
+export type ChapterZenUnivSectionExercise
+  = & ChapterZenUnivSectionCommonProps
+    & TotalQuestionProps
+    & {
+      resource_type: 'exercise';
+      done: boolean;
+      content_available: boolean;
+      blocked_until: number | null;
+    };
+
+export type ChapterZenUnivSectionReport
+  = & ChapterZenUnivSectionCommonProps
+    & TotalQuestionProps
+    & {
+      resource_type: 'report';
+      done: boolean;
+      content_available: boolean;
+    };
+
+export type ChapterZenUniv = {
+  course_type: 'zen_univ';
+  subject_completed: boolean;
+  chapter:
+    & BaseContentProps
+    & OutlineProps
+    & {
+      open_section_index: number;
+      progress:
+        & ChapterProgressProps
+        & StatusProps;
+      sections: (
+        | ChapterZenUnivSectionMovie
+        | ChapterZenUnivSectionExercise
+        | ChapterZenUnivSectionReport
+      )[];
+    };
+};
+
+export type Chapter = ChapterNSchool | ChapterAdvanced | ChapterZenUniv;
 
 export type CourseSelectedProps = {
   selected: boolean;
@@ -323,6 +375,36 @@ export type CourseAdvanced
       )[];
     };
 
+export type CourseZenUnivProgress = {
+  total_count: number;
+  passed_count: number;
+};
+
+export type CourseZenUnivChapter
+  = & BaseContentProps
+    & OutlineProps
+    & StatusProps
+    & {
+      resource_type: 'chapter';
+      label: string | null;
+      progress: CourseZenUnivProgress;
+      content_available: boolean;
+    };
+
+export type CourseZenUniv
+  = & BaseContentProps
+    & CourseSelectedProps
+    & OutlineProps
+    & CourseSubjectCategoryProps
+    & {
+      type: 'zen_univ';
+      progress: {
+        total_count: number;
+        passed_count: number;
+      };
+      chapters: CourseZenUnivChapter[];
+    };
+
 export type Course = {
-  course: CourseNSchool | CourseAdvanced;
+  course: CourseNSchool | CourseAdvanced | CourseZenUniv;
 };
