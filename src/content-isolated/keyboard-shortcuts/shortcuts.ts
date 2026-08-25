@@ -58,7 +58,7 @@ const createSectionMoveShortcut = <T extends KeyboardShortcutItemOptions>(
   relativePosition: number,
 ): Shortcut<ShortcutExecution<T>> => {
   return ({ pageContent, syncOptions }) => {
-    if (!pageContent.types.find((pageType) => pageType.name === 'CHAPTER')) {
+    if (!pageContent.types.some((pageType) => pageType.name === 'CHAPTER')) {
       return;
     }
 
@@ -143,7 +143,7 @@ const shortcuts: {
     }
   },
   expandSection: ({ pageContent, syncOptions }) => {
-    if (!pageContent.types.find((pageType) => pageType.name === 'CHAPTER')) {
+    if (!pageContent.types.some((pageType) => pageType.name === 'CHAPTER')) {
       return;
     }
 

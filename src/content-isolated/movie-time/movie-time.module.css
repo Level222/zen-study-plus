@@ -50,8 +50,8 @@
 .placeholder {
   width: 90px;
   height: 16px;
-  background-color: #f8f8f8;
   border-radius: 8px;
+  background-color: #f8f8f8;
 }
 
 .faint {
@@ -65,9 +65,9 @@
 
   margin-bottom: 20px;
   padding: 16px;
+  border-radius: 8px;
 
   background-color: #fff;
-  border-radius: 8px;
   box-shadow: #0000001a 0 1px 1px, #0003 0 0 2px;
 }
 
@@ -81,17 +81,17 @@
   cursor: pointer;
 
   padding: 8px 16px;
+  border: 1px solid #b3b3b3;
+  border-radius: 8px;
 
   color: #222;
 
   background-color: #fff;
-  border: 1px solid #b3b3b3;
-  border-radius: 8px;
 
   &:disabled {
     cursor: default;
-    color: #b3b3b3;
     border-color: #c8c8c8;
+    color: #b3b3b3;
   }
 
   &:hover:not(:disabled) {

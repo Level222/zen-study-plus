@@ -24,42 +24,44 @@
 
   let savedTimeoutId = $state<number | undefined>(undefined);
 
-  const form = createForm({
-    ...adapt(UserOptions),
-    resolver,
-    idBuilder: createFormIdBuilder,
-    merger: createFormMerger,
-    translation,
-    theme: overrideByRecord(theme, {
-      objectTemplate: ObjectTemplate,
-      title: Title,
-      accordion: Accordion,
-      selectWidget: Select,
-    }),
-    uiSchema: optionsFormUiSchema,
-    fieldsValidationMode: ON_CHANGE,
-    fieldsValidationDebounceMs: 100,
-    extraUiOptions: fromRecord({
-      submitButton: {
-        get class() {
-          return `sjsf-submit-button ${savedTimeoutId ? 'outline' : ''}`;
+  const form = $derived(
+    createForm({
+      ...adapt(UserOptions),
+      resolver,
+      idBuilder: createFormIdBuilder,
+      merger: createFormMerger,
+      translation,
+      theme: overrideByRecord(theme, {
+        objectTemplate: ObjectTemplate,
+        title: Title,
+        accordion: Accordion,
+        selectWidget: Select,
+      }),
+      uiSchema: optionsFormUiSchema,
+      fieldsValidationMode: ON_CHANGE,
+      fieldsValidationDebounceMs: 100,
+      extraUiOptions: fromRecord({
+        submitButton: {
+          get class() {
+            return `sjsf-submit-button ${savedTimeoutId ? 'outline' : ''}`;
+          },
         },
+      }),
+      icons: fromRecord({
+        submit: submitContent,
+      }),
+      initialValue: initialOptions,
+      onSubmit: (value) => {
+        clearTimeout(savedTimeoutId);
+
+        savedTimeoutId = setTimeout(() => {
+          savedTimeoutId = undefined;
+        }, 3000);
+
+        onSubmit(value);
       },
     }),
-    icons: fromRecord({
-      submit: submitContent,
-    }),
-    initialValue: initialOptions,
-    onSubmit: (value) => {
-      clearTimeout(savedTimeoutId);
-
-      savedTimeoutId = setTimeout(() => {
-        savedTimeoutId = undefined;
-      }, 3000);
-
-      onSubmit(value);
-    },
-  });
+  );
 </script>
 
 {#snippet submitContent()}
@@ -71,7 +73,9 @@
 {/snippet}
 
 <div class='form'>
-  <BasicForm {form} novalidate />
+  {#key form}
+    <BasicForm {form} novalidate />
+  {/key}
 </div>
 
 <style>
@@ -92,7 +96,9 @@
       align-items: center;
       justify-content: center;
 
-      padding: var(--pico-form-element-spacing-vertical) var(--pico-form-element-spacing-horizontal);
+      padding:
+        var(--pico-form-element-spacing-vertical)
+        var(--pico-form-element-spacing-horizontal);
 
       &.outline {
         background-color: var(--document-background-color);
