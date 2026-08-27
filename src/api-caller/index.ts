@@ -3,7 +3,7 @@ import type { ChapterPageInfo, CoursePageInfo, MonthlyReportsPageInfo } from '..
 import type { User } from './v1-users';
 import type { Chapter, Course } from './v2-material';
 import type { ReportProgressMonthly } from './v2-report-progress-monthly';
-import { map, shareReplay } from 'rxjs';
+import { catchError, map, shareReplay } from 'rxjs';
 import { ajax } from 'rxjs/ajax';
 
 const ORIGIN = 'https://api.nnn.ed.nico';
@@ -19,33 +19,13 @@ const callApi = (path: string): Observable<any> => {
   );
 };
 
-export const user$ = callApi('/v1/users').pipe(
-  shareReplay({
-    bufferSize: 1,
-    refCount: false,
-  }),
-);
-
 export const callApiV2MaterialChapter = (
   { courseId, chapterId }: ChapterPageInfo,
 ): Observable<Chapter> => {
-  return callApi(`/v2/material/courses/${courseId}/chapters/${chapterId}`);
-};
-
-export const callApiV2ZenUnivMaterialChapter = (
-  { courseId, chapterId }: ChapterPageInfo,
-): Observable<Chapter> => {
-  return callApi(`/v2/material/courses/${courseId}/chapters/${chapterId}?revision=1`,
-  );
+  return callApi(`/v2/material/courses/${courseId}/chapters/${chapterId}?revision=1`);
 };
 
 export const callApiV2MaterialCourse = (
-  { courseId }: CoursePageInfo,
-): Observable<Course> => {
-  return callApi(`/v2/material/courses/${courseId}`);
-};
-
-export const callApiV2ZenUnivMaterialCourse = (
   { courseId }: CoursePageInfo,
 ): Observable<Course> => {
   return callApi(`/v2/material/courses/${courseId}?revision=1`);
@@ -66,3 +46,13 @@ export const callApiV2ZenUnivReportProgressMonthly = (
 export const callApiV1Users = (): Observable<User> => {
   return callApi('/v1/users');
 };
+
+export const user$ = callApiV1Users().pipe(
+  shareReplay(1),
+);
+
+export const authority$ = user$.pipe(
+  map((user) => user.authority),
+  catchError(() => []),
+  shareReplay(1),
+);
