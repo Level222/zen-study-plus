@@ -29,23 +29,10 @@ export const user$ = callApi('/v1/users').pipe(
 export const callApiV2MaterialChapter = (
   { courseId, chapterId }: ChapterPageInfo,
 ): Observable<Chapter> => {
-  return callApi(`/v2/material/courses/${courseId}/chapters/${chapterId}`);
-};
-
-export const callApiV2ZenUnivMaterialChapter = (
-  { courseId, chapterId }: ChapterPageInfo,
-): Observable<Chapter> => {
-  return callApi(`/v2/material/courses/${courseId}/chapters/${chapterId}?revision=1`,
-  );
+  return callApi(`/v2/material/courses/${courseId}/chapters/${chapterId}?revision=1`);
 };
 
 export const callApiV2MaterialCourse = (
-  { courseId }: CoursePageInfo,
-): Observable<Course> => {
-  return callApi(`/v2/material/courses/${courseId}`);
-};
-
-export const callApiV2ZenUnivMaterialCourse = (
   { courseId }: CoursePageInfo,
 ): Observable<Course> => {
   return callApi(`/v2/material/courses/${courseId}?revision=1`);

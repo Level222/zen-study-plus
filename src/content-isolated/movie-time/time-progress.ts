@@ -2,7 +2,7 @@ import type { Observable } from 'rxjs';
 import type { ChapterAdvancedClassHeaderLessonSection, ChapterAdvancedClassHeaderSectionMovie, ChapterMovieResourceProps, ChapterNSchoolSectionMovie, ChapterZenUnivSectionMovie } from '../../api-caller/v2-material';
 import type { ChapterPageInfo, CoursePageInfo, MonthlyReportsPageInfo } from '../../utils/page-info';
 import { concatMap, forkJoin, map, of } from 'rxjs';
-import { callApiV2MaterialChapter, callApiV2MaterialCourse, callApiV2ReportProgressMonthly, callApiV2ZenUnivMaterialChapter, callApiV2ZenUnivMaterialCourse, callApiV2ZenUnivReportProgressMonthly, user$ } from '../../api-caller';
+import { callApiV2MaterialChapter, callApiV2MaterialCourse, callApiV2ReportProgressMonthly, callApiV2ZenUnivReportProgressMonthly, user$ } from '../../api-caller';
 
 export type TimeProgressGroup = {
   /**
@@ -151,16 +151,7 @@ const createZenUnivTimeProgress = (
 };
 
 export const fetchChapterTimeProgress = (chapterPageInfo: ChapterPageInfo): Observable<TimeProgress> => (
-  user$.pipe(
-    concatMap(({ authority }) => {
-      const isZenUniv = authority.includes('zen_univ_student');
-
-      return (
-        isZenUniv
-          ? callApiV2ZenUnivMaterialChapter(chapterPageInfo)
-          : callApiV2MaterialChapter(chapterPageInfo)
-      );
-    }),
+  callApiV2MaterialChapter(chapterPageInfo).pipe(
     map(({ course_type, chapter }): TimeProgress => {
       switch (course_type) {
         case 'n_school': {
@@ -246,14 +237,7 @@ export const fetchChapterTimeProgress = (chapterPageInfo: ChapterPageInfo): Obse
 export const fetchCourseTimeProgress = (
   coursePageInfo: CoursePageInfo,
 ): Observable<TimeProgress> => (
-  user$.pipe(
-    concatMap(({ authority }) => {
-      const isZenUniv = authority.includes('zen_univ_student');
-
-      return isZenUniv
-        ? callApiV2ZenUnivMaterialCourse(coursePageInfo)
-        : callApiV2MaterialCourse(coursePageInfo);
-    }),
+  callApiV2MaterialCourse(coursePageInfo).pipe(
     concatMap(({ course }) => {
       const timeProgressObservableList = course.chapters.flatMap(({ resource_type, id }) => (
         resource_type === 'chapter'
