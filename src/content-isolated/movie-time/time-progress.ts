@@ -2,7 +2,7 @@ import type { Observable } from 'rxjs';
 import type { ChapterAdvancedClassHeaderLessonSection, ChapterAdvancedClassHeaderSectionMovie, ChapterMovieResourceProps, ChapterNSchoolSectionMovie, ChapterZenUnivSectionMovie } from '../../api-caller/v2-material';
 import type { ChapterPageInfo, CoursePageInfo, MonthlyReportsPageInfo } from '../../utils/page-info';
 import { concatMap, forkJoin, map, of } from 'rxjs';
-import { callApiV2MaterialChapter, callApiV2MaterialCourse, callApiV2ReportProgressMonthly, callApiV2ZenUnivReportProgressMonthly, user$ } from '../../api-caller';
+import { authority$, callApiV2MaterialChapter, callApiV2MaterialCourse, callApiV2ReportProgressMonthly, callApiV2ZenUnivReportProgressMonthly } from '../../api-caller';
 
 export type TimeProgressGroup = {
   /**
@@ -269,8 +269,8 @@ export const fetchCourseTimeProgress = (
 export const fetchMonthlyReportsTimeProgress = (
   monthlyReportsPageInfo: MonthlyReportsPageInfo,
 ): Observable<TimeProgress> => (
-  user$.pipe(
-    concatMap(({ authority }) => {
+  authority$.pipe(
+    concatMap((authority) => {
       const isZenUniv = authority.includes('zen_univ_student');
 
       return isZenUniv
